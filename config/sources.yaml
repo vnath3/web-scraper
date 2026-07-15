@@ -13,3 +13,9 @@ enrichment:
 api_budget:
   max_calls_per_month: 8000
   warn_at_percent: 80
+niche_keywords:
+  residential: ["residential", "home design", "bungalow", "villa design", "residence"]
+  commercial: ["commercial", "corporate", "office design", "retail design", "commercial architect"]
+  interior_design: ["interior", "interior design", "interior designer", "decor", "interiors"]
+  structural: ["structural", "structural engineer", "civil structural", "rcc design", "structural consultant"]
+  landscape: ["landscape", "landscaping", "garden design", "landscape architect"]

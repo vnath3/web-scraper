@@ -23,8 +23,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from leadgen.config_loader import load_config  # noqa: E402
 
-DB_PATH = Path("data/leads.db")
-DEFAULT_CONFIG_PATH = Path("config/sources.yaml")
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+DB_PATH = _REPO_ROOT / "data" / "leads.db"
+DEFAULT_CONFIG_PATH = _REPO_ROOT / "config" / "sources.yaml"
 
 STATUS_OPTIONS = ["new", "contacted", "no_answer", "converted", "rejected"]
 SEGMENT_TAGS = [
@@ -43,8 +44,13 @@ GRID_COLUMNS = [
     "website",
     "rating",
     "segment_tag",
+    "niche_tag",
     "status",
     "date_found",
+    "enrichment_source",
+    "enrichment_phone",
+    "enrichment_website_found",
+    "enrichment_checked_at",
 ]
 
 
@@ -95,6 +101,7 @@ def _apply_filters(
     df: pd.DataFrame,
     sub_areas: List[str],
     segment_tags: List[str],
+    niche_tags: List[str],
     statuses: List[str],
     has_website: str,
 ) -> pd.DataFrame:
@@ -103,6 +110,8 @@ def _apply_filters(
         filtered = filtered[filtered["sub_area"].isin(sub_areas)]
     if segment_tags:
         filtered = filtered[filtered["segment_tag"].isin(segment_tags)]
+    if niche_tags:
+        filtered = filtered[filtered["niche_tag"].isin(niche_tags)]
     if statuses:
         filtered = filtered[filtered["status"].isin(statuses)]
     if has_website == "Yes":
@@ -144,10 +153,23 @@ def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
             "website": st.column_config.TextColumn("Website", width="large", disabled=True),
             "rating": st.column_config.NumberColumn("Rating", width="small", disabled=True),
             "segment_tag": st.column_config.TextColumn("Segment", width="medium", disabled=True),
+            "niche_tag": st.column_config.TextColumn("Niche", width="medium", disabled=True),
             "status": st.column_config.SelectboxColumn(
                 "Status", width="small", options=STATUS_OPTIONS, required=True
             ),
             "date_found": st.column_config.TextColumn("Date found", width="small", disabled=True),
+            "enrichment_source": st.column_config.TextColumn(
+                "Enrichment source", width="small", disabled=True
+            ),
+            "enrichment_phone": st.column_config.TextColumn(
+                "Enrichment phone", width="medium", disabled=True
+            ),
+            "enrichment_website_found": st.column_config.TextColumn(
+                "Enrichment website", width="large", disabled=True
+            ),
+            "enrichment_checked_at": st.column_config.TextColumn(
+                "Enrichment checked at", width="medium", disabled=True
+            ),
         },
     )
 
@@ -205,6 +227,9 @@ def main() -> None:
     segment_tags = st.sidebar.multiselect(
         "Segment tag", sorted(df["segment_tag"].dropna().unique().tolist())
     )
+    niche_tags = st.sidebar.multiselect(
+        "Niche", sorted(df["niche_tag"].dropna().unique().tolist())
+    )
     statuses = st.sidebar.multiselect(
         "Status", sorted(df["status"].dropna().unique().tolist())
     )
@@ -217,7 +242,7 @@ def main() -> None:
         with tab:
             category_df = df[df["category"] == category]
             filtered_df = _apply_filters(
-                category_df, sub_areas, segment_tags, statuses, has_website
+                category_df, sub_areas, segment_tags, niche_tags, statuses, has_website
             )
             _render_category_tab(category, filtered_df)
 

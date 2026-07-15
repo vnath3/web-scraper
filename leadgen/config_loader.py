@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Literal, Optional
+from typing import Dict, List, Literal, Optional
 
 import yaml
 from pydantic import BaseModel, Field, ValidationError
@@ -28,6 +28,7 @@ class SourceConfig(BaseModel):
     require_phone: bool = True
     enrichment: Optional[EnrichmentConfig] = None
     api_budget: Optional[ApiBudgetConfig] = None
+    niche_keywords: Optional[Dict[str, List[str]]] = None
 
 
 def load_config(path: str | Path) -> SourceConfig:

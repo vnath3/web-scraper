@@ -13,3 +13,13 @@ enrichment:
 api_budget:
   max_calls_per_month: 8000
   warn_at_percent: 80
+niche_keywords:
+  general_physician: ["general physician", "family clinic", "general practitioner", "gp clinic", "physician", "family doctor"]
+  dental: ["dental", "dentist", "dant", "dant chikitsa", "oral care", "teeth clinic"]
+  eye_care: ["eye", "eye care", "netra", "ophthalmology", "vision care", "eye hospital"]
+  physiotherapy: ["physio", "physiotherapy", "physiotherapist", "rehab clinic", "spine care"]
+  dermatology: ["skin", "dermatology", "dermatologist", "skin clinic", "twacha", "cosmetic skin"]
+  orthopedic: ["ortho", "orthopedic", "orthopaedic", "bone clinic", "joint clinic", "haddi"]
+  pediatric: ["pediatric", "paediatric", "child clinic", "children's clinic", "bal chikitsa", "kids clinic"]
+  gynecology: ["gynec", "gynecology", "gynaecology", "women's clinic", "maternity", "prasuti"]
+  ent: ["ent clinic", "ent specialist", "ear nose throat", "nak kan gala", "throat clinic", "ent hospital"]

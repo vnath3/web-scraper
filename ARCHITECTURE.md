@@ -41,12 +41,21 @@ only. Requests retry with exponential backoff on 429/5xx responses.
 
 ## 4. Filter Layer
 
-**File:** `leadgen/filters.py`
+**Files:** `leadgen/filters.py`, `leadgen/niche.py`
 
 A place qualifies as a LEAD if `business_status == OPERATIONAL AND phone
 exists`. Every place (qualified or not) is assigned a `segment_tag`:
 `no_digital_presence`, `reputation_angle`, `visibility_angle`, or
 `general_outreach`.
+
+Qualified leads also get a `niche_tag` — a per-vertical sub-category
+(e.g. `dental`, `physiotherapy` within the clinic vertical), derived by
+`leadgen/niche.py`'s `assign_niche_tag`: Google's `types`/`primaryType`
+fields are checked first, falling back to case-insensitive keyword
+matching against the lead's `name` (keyword lists come from each config's
+`niche_keywords` section) if no type match is found. See
+[DECISIONS.md](DECISIONS.md) for why this is two-tier rather than
+keyword-only.
 
 ## 5. Enrichment Layer (conditional)
 

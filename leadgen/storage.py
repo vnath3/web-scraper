@@ -8,7 +8,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
-DEFAULT_DB_PATH = Path("data/leads.db")
+DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "data" / "leads.db"
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS leads (
@@ -51,10 +51,15 @@ ENRICHMENT_COLUMNS = {
     "enrichment_checked_at": "TEXT",
 }
 
+NICHE_COLUMNS = {
+    "google_types": "TEXT",  # raw Places `types` array, stored comma-separated
+    "niche_tag": "TEXT",
+}
 
-def _migrate_enrichment_columns(conn: sqlite3.Connection) -> None:
+
+def _migrate_columns(conn: sqlite3.Connection, columns: Dict[str, str]) -> None:
     existing = {row[1] for row in conn.execute("PRAGMA table_info(leads)").fetchall()}
-    for column, col_type in ENRICHMENT_COLUMNS.items():
+    for column, col_type in columns.items():
         if column not in existing:
             conn.execute(f"ALTER TABLE leads ADD COLUMN {column} {col_type}")
 
@@ -66,7 +71,8 @@ def _connect(db_path: str | Path = DEFAULT_DB_PATH) -> Iterator[sqlite3.Connecti
     conn = sqlite3.connect(db_path)
     try:
         conn.executescript(SCHEMA)
-        _migrate_enrichment_columns(conn)
+        _migrate_columns(conn, ENRICHMENT_COLUMNS)
+        _migrate_columns(conn, NICHE_COLUMNS)
         yield conn
         conn.commit()
     finally:
@@ -80,14 +86,18 @@ def init_db(db_path: str | Path = DEFAULT_DB_PATH) -> None:
 
 def insert_lead(lead: Dict[str, Any], db_path: str | Path = DEFAULT_DB_PATH) -> bool:
     """Insert a qualifying lead. Returns True if a new row was inserted."""
+    google_types = lead.get("google_types")
+    if isinstance(google_types, list):
+        google_types = ",".join(google_types)
+
     with _connect(db_path) as conn:
         cursor = conn.execute(
             """
             INSERT OR IGNORE INTO leads (
                 place_id, name, phone, address, category, website,
                 rating, rating_count, business_status, segment_tag,
-                sub_area, date_found, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new')
+                sub_area, date_found, status, google_types, niche_tag
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?, ?)
             """,
             (
                 lead.get("place_id"),
@@ -102,6 +112,8 @@ def insert_lead(lead: Dict[str, Any], db_path: str | Path = DEFAULT_DB_PATH) -> 
                 lead.get("segment_tag"),
                 lead.get("sub_area"),
                 lead.get("date_found", date.today().isoformat()),
+                google_types,
+                lead.get("niche_tag"),
             ),
         )
         return cursor.rowcount > 0
@@ -219,6 +231,30 @@ def count_leads_needing_enrichment(db_path: str | Path = DEFAULT_DB_PATH) -> int
             """
         ).fetchone()
         return row[0]
+
+
+def get_leads_missing_niche_tag(
+    category: str, db_path: str | Path = DEFAULT_DB_PATH
+) -> List[Dict[str, Any]]:
+    """Return leads for a category with no niche_tag set yet (for backfill)."""
+    with _connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT * FROM leads WHERE category = ? AND niche_tag IS NULL",
+            (category,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+
+def update_niche_tag(
+    place_id: str, niche_tag: str, db_path: str | Path = DEFAULT_DB_PATH
+) -> None:
+    """Set niche_tag for a single lead (used by the backfill script)."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            "UPDATE leads SET niche_tag = ? WHERE place_id = ?",
+            (niche_tag, place_id),
+        )
 
 
 def update_enrichment(

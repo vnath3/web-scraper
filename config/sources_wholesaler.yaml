@@ -13,3 +13,11 @@ enrichment:
 api_budget:
   max_calls_per_month: 8000
   warn_at_percent: 80
+niche_keywords:
+  steel_hardware: ["steel", "hardware", "iron", "lohar", "metal supplier", "hardware mart"]
+  electrical: ["electrical", "electricals", "electric supply", "wire supplier", "switchgear", "electrical hardware"]
+  grocery_kirana: ["kirana", "grocery", "provision store", "general store", "wholesale grocery", "kirana store"]
+  textiles: ["textile", "textiles", "cloth merchant", "fabric", "saree wholesale", "garment wholesale"]
+  stationery: ["stationery", "stationers", "paper mart", "book depot", "office supplies"]
+  agricultural_inputs: ["agro", "agricultural", "seeds", "fertilizer", "beej bhandar", "krishi"]
+  construction_materials: ["cement", "construction material", "building material", "sand supplier", "sanitaryware"]

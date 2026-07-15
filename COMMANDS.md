@@ -60,6 +60,7 @@ streamlit run leadgen/dashboard.py
 ```bash
 python scripts/verify_no_hardcoding.py
 python scripts/smoke_test_enrichment.py
+python scripts/backfill_niche_tags.py --config config/sources_clinic.yaml
 ```
 
 `verify_no_hardcoding.py` greps the codebase for hardcoded
@@ -68,3 +69,9 @@ any change that touches config-related code.
 
 `smoke_test_enrichment.py` exercises the JustDial/IndiaMART parsers
 against saved sample HTML, without hitting the live sites.
+
+`backfill_niche_tags.py` is a one-off: it assigns `niche_tag` to existing
+leads (scraped before `niche_tag` existed) using name-keyword matching
+only, no API calls spent. Run once per vertical config after adding or
+changing that vertical's `niche_keywords`. New leads from `main.py run`
+get `niche_tag` automatically going forward and don't need this.

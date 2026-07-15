@@ -14,6 +14,7 @@ from leadgen.config_loader import ApiBudgetConfig, SourceConfig, load_config
 from leadgen.enrichment import ENRICHMENT_SOURCES
 from leadgen.exporter import export_to_csv
 from leadgen.filters import apply_filter
+from leadgen.niche import assign_niche_tag
 from leadgen.places_client import ApiCallCounter, get_place_details, text_search
 from leadgen.storage import (
     count_leads_needing_enrichment,
@@ -107,6 +108,16 @@ def run(config_path: str, force_rescrape: bool = False) -> None:
 
             if filtered["qualified"]:
                 qualified_count += 1
+
+                niche_tag = "unspecified"
+                if config.niche_keywords:
+                    niche_tag, _matched_via = assign_niche_tag(
+                        google_types=filtered.get("types"),
+                        primary_type=filtered.get("primary_type"),
+                        name=filtered.get("name") or "",
+                        niche_keywords=config.niche_keywords,
+                    )
+
                 lead = {
                     "place_id": filtered.get("place_id"),
                     "name": filtered.get("name"),
@@ -120,6 +131,8 @@ def run(config_path: str, force_rescrape: bool = False) -> None:
                     "segment_tag": filtered.get("segment_tag"),
                     "sub_area": place.get("sub_area"),
                     "date_found": date.today().isoformat(),
+                    "google_types": filtered.get("types"),
+                    "niche_tag": niche_tag,
                 }
                 insert_lead(lead)
             else:

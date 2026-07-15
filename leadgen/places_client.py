@@ -19,7 +19,7 @@ TEXT_SEARCH_FIELD_MASK = (
 )
 PLACE_DETAILS_FIELD_MASK = (
     "id,displayName,formattedAddress,nationalPhoneNumber,websiteUri,"
-    "businessStatus,rating,userRatingCount"
+    "businessStatus,rating,userRatingCount,types,primaryType"
 )
 
 MAX_TEXT_SEARCH_PAGES = 3
@@ -172,4 +172,6 @@ def get_place_details(
         "business_status": data.get("businessStatus"),
         "rating": data.get("rating"),
         "rating_count": data.get("userRatingCount"),
+        "types": data.get("types"),
+        "primary_type": data.get("primaryType"),
     }

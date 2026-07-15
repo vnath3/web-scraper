@@ -69,3 +69,36 @@ lets you set budget alerts, because GCP budget alerts are notify-only —
 they tell you after the fact, they don't stop a run mid-flight. The
 in-app check stops a `run` before it exceeds the configured monthly
 ceiling, which GCP's alerting does not do by default.
+
+## niche_tag is a two-tier classification: Google types first, keyword fallback second
+
+`niche_tag` exists to split a vertical into sub-niches (e.g. clinic into
+dental/dermatology/physiotherapy/etc.) without spending extra API calls or
+adding a new scrape. It's derived in `leadgen/niche.py`'s
+`assign_niche_tag`, checked in priority order: (1) Google's `types` /
+`primaryType` fields, matched against a conservative, hand-verified map
+of known Google Place types per niche; (2) if that doesn't match,
+case-insensitive keyword matching against the lead's `name`, using
+per-vertical keyword lists tuned to common Indian business-naming
+conventions (`niche_keywords` in each vertical's config). The function
+returns which tier produced the match so a wrong-looking `niche_tag` is
+traceable rather than opaque.
+
+This was deliberately built as two tiers rather than keyword-only because
+Google's own classification is authoritative when available — but real
+backfill testing against existing wholesaler/clinic leads showed most
+niches (especially wholesaler subtypes) have no distinct Google type at
+all, so keyword matching against `name` does most of the actual
+classification work in practice. Google types were only added to the
+Place Details field mask (`types`, `primaryType`) after confirming this
+doesn't push the call to a higher Places API billing tier — the mask
+already requests higher-tier fields (`nationalPhoneNumber`, `rating`,
+etc.), and Essentials-tier fields added to a call that already includes
+higher-tier fields don't raise the cost of that call.
+
+`niche_tag` is only populated for new leads going forward from the scrape
+pipeline. Existing leads were backfilled via
+`scripts/backfill_niche_tags.py`, which can only use the keyword tier
+(pre-existing rows have no `google_types` captured) — expect a meaningful
+share of older rows to land on `unspecified` where the business name alone
+doesn't signal a sub-niche (e.g. a clinic named only after its owner).
