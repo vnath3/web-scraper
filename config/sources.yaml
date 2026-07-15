@@ -1,0 +1,15 @@
+category: "architect"
+location: "Chhatrapati Sambhaji Nagar"
+sub_areas:
+  - "Cidco"
+  - "Garkheda"
+  - "Jyoti Nagar"
+radius_meters: 5000
+require_phone: true
+enrichment:
+  enabled: true
+  source: "justdial"
+  max_leads_per_run: 50
+api_budget:
+  max_calls_per_month: 8000
+  warn_at_percent: 80

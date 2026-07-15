@@ -1,0 +1,244 @@
+"""SQLite storage for scraped leads."""
+
+from __future__ import annotations
+
+import sqlite3
+from contextlib import contextmanager
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional
+
+DEFAULT_DB_PATH = Path("data/leads.db")
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS leads (
+    place_id TEXT PRIMARY KEY,
+    name TEXT,
+    phone TEXT,
+    address TEXT,
+    category TEXT,
+    website TEXT,
+    rating REAL,
+    rating_count INTEGER,
+    business_status TEXT,
+    segment_tag TEXT,
+    sub_area TEXT,
+    date_found TEXT,
+    status TEXT DEFAULT 'new'
+);
+
+CREATE TABLE IF NOT EXISTS api_call_log (
+    date TEXT NOT NULL,
+    endpoint TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (date, endpoint)
+);
+
+CREATE TABLE IF NOT EXISTS scraped_subareas (
+    category TEXT NOT NULL,
+    sub_area TEXT NOT NULL,
+    last_scraped_at TEXT NOT NULL,
+    PRIMARY KEY (category, sub_area)
+);
+"""
+
+# Columns added after the initial release. Applied via ALTER TABLE so
+# existing databases are migrated in place rather than dropped/recreated.
+ENRICHMENT_COLUMNS = {
+    "enrichment_source": "TEXT",
+    "enrichment_phone": "TEXT",
+    "enrichment_website_found": "TEXT",
+    "enrichment_checked_at": "TEXT",
+}
+
+
+def _migrate_enrichment_columns(conn: sqlite3.Connection) -> None:
+    existing = {row[1] for row in conn.execute("PRAGMA table_info(leads)").fetchall()}
+    for column, col_type in ENRICHMENT_COLUMNS.items():
+        if column not in existing:
+            conn.execute(f"ALTER TABLE leads ADD COLUMN {column} {col_type}")
+
+
+@contextmanager
+def _connect(db_path: str | Path = DEFAULT_DB_PATH) -> Iterator[sqlite3.Connection]:
+    db_path = Path(db_path)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.executescript(SCHEMA)
+        _migrate_enrichment_columns(conn)
+        yield conn
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def init_db(db_path: str | Path = DEFAULT_DB_PATH) -> None:
+    with _connect(db_path):
+        pass
+
+
+def insert_lead(lead: Dict[str, Any], db_path: str | Path = DEFAULT_DB_PATH) -> bool:
+    """Insert a qualifying lead. Returns True if a new row was inserted."""
+    with _connect(db_path) as conn:
+        cursor = conn.execute(
+            """
+            INSERT OR IGNORE INTO leads (
+                place_id, name, phone, address, category, website,
+                rating, rating_count, business_status, segment_tag,
+                sub_area, date_found, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new')
+            """,
+            (
+                lead.get("place_id"),
+                lead.get("name"),
+                lead.get("phone"),
+                lead.get("address"),
+                lead.get("category"),
+                lead.get("website"),
+                lead.get("rating"),
+                lead.get("rating_count"),
+                lead.get("business_status"),
+                lead.get("segment_tag"),
+                lead.get("sub_area"),
+                lead.get("date_found", date.today().isoformat()),
+            ),
+        )
+        return cursor.rowcount > 0
+
+
+def log_api_call(endpoint: str, db_path: str | Path = DEFAULT_DB_PATH) -> None:
+    """Increment today's call count for the given endpoint."""
+    today = date.today().isoformat()
+    with _connect(db_path) as conn:
+        conn.execute(
+            """
+            INSERT INTO api_call_log (date, endpoint, count) VALUES (?, ?, 1)
+            ON CONFLICT(date, endpoint) DO UPDATE SET count = count + 1
+            """,
+            (today, endpoint),
+        )
+
+
+def get_calls_this_month(
+    endpoint: Optional[str] = None, db_path: str | Path = DEFAULT_DB_PATH
+) -> int:
+    """Sum api_call_log counts for the current calendar month.
+
+    If endpoint is None, sums across all endpoints.
+    """
+    month_prefix = date.today().isoformat()[:7]  # "YYYY-MM"
+    with _connect(db_path) as conn:
+        if endpoint is None:
+            row = conn.execute(
+                "SELECT COALESCE(SUM(count), 0) FROM api_call_log WHERE date LIKE ?",
+                (f"{month_prefix}%",),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT COALESCE(SUM(count), 0) FROM api_call_log "
+                "WHERE date LIKE ? AND endpoint = ?",
+                (f"{month_prefix}%", endpoint),
+            ).fetchone()
+        return row[0]
+
+
+def get_subarea_last_scraped(
+    category: str, sub_area: str, db_path: str | Path = DEFAULT_DB_PATH
+) -> Optional[str]:
+    """Return the last_scraped_at timestamp for (category, sub_area), or None."""
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT last_scraped_at FROM scraped_subareas WHERE category = ? AND sub_area = ?",
+            (category, sub_area),
+        ).fetchone()
+        return row[0] if row else None
+
+
+def mark_subarea_scraped(
+    category: str,
+    sub_area: str,
+    scraped_at: str,
+    db_path: str | Path = DEFAULT_DB_PATH,
+) -> None:
+    """Record that (category, sub_area) was scraped, upserting the timestamp."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            """
+            INSERT INTO scraped_subareas (category, sub_area, last_scraped_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(category, sub_area) DO UPDATE SET last_scraped_at = excluded.last_scraped_at
+            """,
+            (category, sub_area, scraped_at),
+        )
+
+
+def get_new_leads_since(
+    since_date: str | date | datetime, db_path: str | Path = DEFAULT_DB_PATH
+) -> List[Dict[str, Any]]:
+    """Return leads with date_found >= since_date (ISO date string or date/datetime)."""
+    if isinstance(since_date, (date, datetime)):
+        since_date = since_date.isoformat()[:10]
+
+    with _connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT * FROM leads WHERE date_found >= ? ORDER BY date_found DESC",
+            (since_date,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+
+def get_leads_needing_enrichment(
+    limit: int, db_path: str | Path = DEFAULT_DB_PATH
+) -> List[Dict[str, Any]]:
+    """Return unenriched no_digital_presence leads, oldest first, up to limit."""
+    with _connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT * FROM leads
+            WHERE segment_tag = 'no_digital_presence'
+              AND enrichment_checked_at IS NULL
+            ORDER BY date_found ASC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+
+def count_leads_needing_enrichment(db_path: str | Path = DEFAULT_DB_PATH) -> int:
+    """Count of no_digital_presence leads not yet checked (for skip reporting)."""
+    with _connect(db_path) as conn:
+        row = conn.execute(
+            """
+            SELECT COUNT(*) FROM leads
+            WHERE segment_tag = 'no_digital_presence'
+              AND enrichment_checked_at IS NULL
+            """
+        ).fetchone()
+        return row[0]
+
+
+def update_enrichment(
+    place_id: str,
+    source: str,
+    phone: Optional[str],
+    website_found: Optional[str],
+    checked_at: str,
+    db_path: str | Path = DEFAULT_DB_PATH,
+) -> None:
+    """Record the outcome of an enrichment lookup for a lead."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            """
+            UPDATE leads
+            SET enrichment_source = ?,
+                enrichment_phone = ?,
+                enrichment_website_found = ?,
+                enrichment_checked_at = ?
+            WHERE place_id = ?
+            """,
+            (source, phone, website_found, checked_at, place_id),
+        )
