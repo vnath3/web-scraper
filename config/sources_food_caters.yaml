@@ -1,0 +1,6 @@
+category: Food Caters
+location: Chh Sambhaji nagar
+sub_areas:
+- Cidco
+radius_meters: 5000
+require_phone: true

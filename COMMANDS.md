@@ -55,6 +55,25 @@ python main.py export --output leads.csv
 streamlit run leadgen/dashboard.py
 ```
 
+Besides browsing/triaging existing leads, the dashboard's **"+ New Scrape
+Config" tab** can create new vertical configs and run them without
+touching a terminal:
+
+- Fill in category, location, sub-areas (one per line or comma-separated),
+  radius, require_phone, and optionally niche keywords, then **Save
+  Config** — writes `config/sources_{category_slug}.yaml` after validating
+  it through the same `SourceConfig` pydantic model the CLI uses. Won't
+  silently overwrite an existing file; requires an explicit "Overwrite
+  existing config" checkbox.
+- **Run Scraper** (appears once a config is saved or selected from the
+  dropdown of everything in `config/`) shows current API budget usage,
+  warns before a run that would push close to the monthly limit, and
+  streams live progress (sub-area skip messages, found/qualified/dropped
+  counts) as the run executes.
+- This goes through the exact same `run_stream` generator in `main.py`
+  that the CLI's `run` command wraps — no separate/duplicated scrape
+  logic, no subprocess.
+
 ## Maintenance / verification
 
 ```bash

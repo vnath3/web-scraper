@@ -78,9 +78,22 @@ insert-or-ignore dedup on `place_id`.
 
 **File:** `leadgen/dashboard.py`
 
-Streamlit dashboard, read-only against the leads table except for one
-write path (status updates). Per-category tabs, sidebar filters, an
-editable `status` column, and CSV export of the currently filtered view.
+Streamlit dashboard, read-only against the leads table except for two
+write paths: status updates, and — via the "+ New Scrape Config" tab —
+writing new config YAML files and triggering runs. Per-category tabs,
+sidebar filters, an editable `status` column, and CSV export of the
+currently filtered view.
+
+The "+ New Scrape Config" tab is not a read-only view: it builds a
+`SourceConfig`, validates it through the same pydantic model
+`config_loader.py` uses for the CLI, writes it to `config/` (never
+silently overwriting an existing file), and can trigger a run against it.
+That run goes through `main.py`'s `run_stream` generator — the identical
+code path `python main.py run` uses (orchestrator layer 2, fetch layer 3,
+filter layer 4, storage layer 6, budget layer 8 all included, unchanged)
+— so the dashboard has no separate scraping implementation. Progress is
+streamed into the page as `run_stream` yields lines, rather than only
+showing a result after the run completes.
 
 ## 8. Budget / Observability Layer
 

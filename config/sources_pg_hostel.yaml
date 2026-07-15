@@ -1,0 +1,9 @@
+category: PG Hostel
+location: Chhatrapati Sambhaji Nagar
+sub_areas:
+- Cidco
+- Osmanpura
+- Deogiri College Area
+- DIEMS Area
+radius_meters: 5000
+require_phone: true

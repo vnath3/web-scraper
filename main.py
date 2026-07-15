@@ -6,7 +6,7 @@ import argparse
 import calendar
 from collections import Counter
 from datetime import date, datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 from dotenv import load_dotenv
 
@@ -32,31 +32,43 @@ def _days_until_month_reset(today: date) -> int:
     return days_in_month - today.day + 1
 
 
-def _check_budget(budget: ApiBudgetConfig, warned: List[bool]) -> bool:
-    """Returns False if the run must stop because the monthly budget is exhausted."""
+def _check_budget(
+    budget: ApiBudgetConfig, warned: List[bool]
+) -> Tuple[bool, Optional[str]]:
+    """Returns (ok, message). ok=False means the run must stop; message is
+    non-None whenever there's something worth surfacing to the caller
+    (a stop notice or a one-time warning-threshold notice)."""
     calls_so_far = get_calls_this_month()
 
     if calls_so_far >= budget.max_calls_per_month:
         days_left = _days_until_month_reset(date.today())
-        print(
-            f"\nAPI budget exceeded: {calls_so_far}/{budget.max_calls_per_month} "
+        message = (
+            f"API budget exceeded: {calls_so_far}/{budget.max_calls_per_month} "
             f"calls used this month. Budget resets in {days_left} day(s). "
             f"Stopping run — no more API calls will be made."
         )
-        return False
+        return False, message
 
     warn_threshold = budget.max_calls_per_month * budget.warn_at_percent / 100
     if calls_so_far >= warn_threshold and not warned[0]:
-        print(
-            f"\n*** WARNING: {calls_so_far}/{budget.max_calls_per_month} calls used "
-            f"this month ({budget.warn_at_percent}%+ threshold). Continuing. ***\n"
+        message = (
+            f"WARNING: {calls_so_far}/{budget.max_calls_per_month} calls used "
+            f"this month ({budget.warn_at_percent}%+ threshold). Continuing."
         )
         warned[0] = True
+        return True, message
 
-    return True
+    return True, None
 
 
-def run(config_path: str, force_rescrape: bool = False) -> None:
+def run_stream(config_path: str, force_rescrape: bool = False) -> Iterator[str]:
+    """Core scrape run, yielding human-readable progress lines as it goes.
+
+    This is the single source of truth for what `run` does — both the CLI
+    (`run`, below) and the dashboard's "Run Scraper" button consume this
+    same generator, so progress reporting and budget/skip logic never
+    drift between the two entry points.
+    """
     load_dotenv()
     config: SourceConfig = load_config(config_path)
     counter = ApiCallCounter()
@@ -71,14 +83,19 @@ def run(config_path: str, force_rescrape: bool = False) -> None:
     for sub_area in config.sub_areas:
         last_scraped_at = get_subarea_last_scraped(config.category, sub_area)
         if last_scraped_at and not force_rescrape:
-            print(f"Skipping {sub_area} — already scraped on {last_scraped_at}")
+            yield f"Skipping {sub_area} — already scraped on {last_scraped_at}"
             subareas_skipped += 1
             continue
 
-        if config.api_budget is not None and not _check_budget(config.api_budget, warned):
-            budget_exceeded = True
-            break
+        if config.api_budget is not None:
+            ok, message = _check_budget(config.api_budget, warned)
+            if message:
+                yield message
+            if not ok:
+                budget_exceeded = True
+                break
 
+        yield f"Searching {sub_area}..."
         query = f"{config.category} in {sub_area}, {config.location}"
         results = text_search(query, counter=counter)
         for place in results:
@@ -92,19 +109,28 @@ def run(config_path: str, force_rescrape: bool = False) -> None:
             config.category, sub_area, datetime.now(timezone.utc).isoformat()
         )
         subareas_scraped += 1
+        yield f"  found {len(results)} place(s) in {sub_area}"
 
     total_found = len(found)
     qualified_count = 0
     drop_reasons: Counter = Counter()
+    processed = 0
 
-    if not budget_exceeded:
+    if not budget_exceeded and found:
+        yield f"Fetching details for {total_found} place(s)..."
+
         for place_id, place in found.items():
-            if config.api_budget is not None and not _check_budget(config.api_budget, warned):
-                budget_exceeded = True
-                break
+            if config.api_budget is not None:
+                ok, message = _check_budget(config.api_budget, warned)
+                if message:
+                    yield message
+                if not ok:
+                    budget_exceeded = True
+                    break
 
             details = get_place_details(place_id, counter=counter)
             filtered = apply_filter(details, config)
+            processed += 1
 
             if filtered["qualified"]:
                 qualified_count += 1
@@ -138,23 +164,33 @@ def run(config_path: str, force_rescrape: bool = False) -> None:
             else:
                 drop_reasons[filtered["drop_reason"]] += 1
 
+            yield (
+                f"  [{processed}/{total_found}] qualified={qualified_count} "
+                f"dropped={processed - qualified_count}"
+            )
+
     dropped_count = total_found - qualified_count
 
-    print("=== Run Summary ===")
+    yield "=== Run Summary ==="
     if budget_exceeded:
-        print("(run stopped early — monthly API budget exceeded)")
-    print(
+        yield "(run stopped early — monthly API budget exceeded)"
+    yield (
         f"{subareas_skipped} sub-areas skipped (already scraped), "
         f"{subareas_scraped} sub-areas scraped this run"
     )
-    print(f"Total places found:     {total_found}")
-    print(f"Total qualified leads:  {qualified_count}")
-    print(f"Total dropped:          {dropped_count}")
+    yield f"Total places found:     {total_found}"
+    yield f"Total qualified leads:  {qualified_count}"
+    yield f"Total dropped:          {dropped_count}"
     if drop_reasons:
         for reason, count in drop_reasons.items():
-            print(f"  - {reason}: {count}")
-    print(f"Total API calls made:   {counter.count}")
-    print(f"Total API calls this month: {get_calls_this_month()}")
+            yield f"  - {reason}: {count}"
+    yield f"Total API calls made:   {counter.count}"
+    yield f"Total API calls this month: {get_calls_this_month()}"
+
+
+def run(config_path: str, force_rescrape: bool = False) -> None:
+    for line in run_stream(config_path, force_rescrape=force_rescrape):
+        print(line)
 
 
 def enrich(config_path: str) -> None:
