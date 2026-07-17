@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copper & Clove — Reserve a table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF2E9; --panel:#FFFFFF; --ink:#2B211A; --ink-soft:#8C7B6C;
+    --terra:#B5502E; --terra-deep:#7E3820; --terra-light:#F4DED2;
+    --gold:#C9932F; --gold-light:#F6EBD3; --line:#EFDCC8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden;}
+  a{color:inherit;}
+  img{display:block;width:100%;height:100%;object-fit:cover;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+  button{font-family:'Inter',sans-serif;}
+
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-stagger > *{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+  .reveal-stagger.in > *:nth-child(1){transition-delay:.05s;}
+  .reveal-stagger.in > *:nth-child(2){transition-delay:.15s;}
+  .reveal-stagger.in > *:nth-child(3){transition-delay:.25s;}
+  .reveal-stagger.in > *:nth-child(4){transition-delay:.35s;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 0;transition:background .3s ease,box-shadow .3s ease,padding .3s ease;}
+  nav.scrolled{background:rgba(251,242,233,0.94);backdrop-filter:blur(6px);box-shadow:0 1px 0 var(--line);padding:12px 0;}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;}
+  .brand{font-family:'Fraunces',serif;font-size:21px;font-weight:600;color:#fff;transition:color .3s ease;letter-spacing:.01em;}
+  nav.scrolled .brand{color:var(--terra-deep);}
+  .nav-cta{background:var(--terra);color:#fff;border:none;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;}
+
+  .hero{position:relative;height:92vh;min-height:600px;display:flex;align-items:flex-end;overflow:hidden;}
+  .hero-bg{position:absolute;inset:0;z-index:0;}
+  .hero-bg img{transform:scale(1.08);transition:transform 6s ease;}
+  .hero.loaded .hero-bg img{transform:scale(1);}
+  .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(30,15,8,0.15) 0%,rgba(25,13,7,0.55) 60%,rgba(20,10,6,0.85) 100%);z-index:1;}
+  .hero-content{position:relative;z-index:2;color:#fff;padding-bottom:64px;width:100%;}
+  .live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);padding:7px 14px;border-radius:999px;font-size:12.5px;margin-bottom:22px;backdrop-filter:blur(4px);}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(201,147,47,.6);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(201,147,47,.5);}70%{box-shadow:0 0 0 8px rgba(201,147,47,0);}100%{box-shadow:0 0 0 0 rgba(201,147,47,0);}}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(32px,5vw,54px);line-height:1.12;letter-spacing:-0.01em;max-width:640px;}
+  .word{display:inline-block;opacity:0;transform:translateY(16px);animation:wordIn .6s ease forwards;}
+  @keyframes wordIn{to{opacity:1;transform:translateY(0);}}
+  .hero-sub{margin-top:18px;font-size:17px;color:rgba(255,255,255,0.85);max-width:460px;}
+  .cta-row{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{background:var(--terra);color:#fff;border:none;padding:14px 26px;font-size:15px;font-weight:600;border-radius:999px;cursor:pointer;transition:background .2s,transform .2s;}
+  .btn-primary:hover{background:var(--terra-deep);transform:translateY(-1px);}
+  .btn-outline{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.4);padding:14px 24px;border-radius:999px;font-size:14.5px;font-weight:500;cursor:pointer;backdrop-filter:blur(4px);}
+
+  .stats{background:var(--panel);border-bottom:1px solid var(--line);}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);padding:44px 0;}
+  .stat-item{text-align:center;border-left:1px solid var(--line);}
+  .stat-item:first-child{border-left:none;}
+  .stat-num{font-family:'Fraunces',serif;font-weight:600;font-size:34px;color:var(--terra-deep);}
+  .stat-label{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+
+  .section{padding:64px 0;border-bottom:1px solid var(--line);}
+  .section-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--terra-deep);margin-bottom:12px;}
+  .section h2{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin-bottom:32px;max-width:520px;}
+
+  /* ---------- reservation widget ---------- */
+  .reserve{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:32px;max-width:680px;}
+  .reserve-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .party-stepper{display:flex;align-items:center;gap:14px;background:#FBF2E9;border:1px solid var(--line);border-radius:999px;padding:6px 8px;}
+  .party-stepper button{width:32px;height:32px;border-radius:50%;border:none;background:var(--terra);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .party-stepper span{font-size:14px;font-weight:600;min-width:70px;text-align:center;}
+  .date-tabs{display:flex;gap:8px;}
+  .date-tab{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;cursor:pointer;transition:background .2s,color .2s,border-color .2s;}
+  .date-tab.active{background:var(--terra);color:#fff;border-color:var(--terra);}
+  .slot-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+  .slot{padding:11px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:13px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s;}
+  .slot:hover{border-color:var(--terra);}
+  .slot.selected{background:var(--terra);color:#fff;border-color:var(--terra);}
+  .slot.full{background:#F3EEE7;color:#C4B8A9;cursor:not-allowed;text-decoration:line-through;}
+  .slot.few{position:relative;}
+  .slot.few::after{content:"Few left";position:absolute;bottom:-16px;left:0;right:0;font-size:9.5px;color:var(--terra);}
+
+  /* ---------- menu ---------- */
+  .menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .menu-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+  .menu-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(181,80,46,0.1);}
+  .menu-img{height:150px;}
+  .menu-body{padding:16px;}
+  .menu-name{font-family:'Fraunces',serif;font-weight:600;font-size:16px;margin-bottom:4px;}
+  .menu-desc{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .menu-foot{display:flex;justify-content:space-between;align-items:center;}
+  .menu-price{font-size:14px;font-weight:600;color:var(--terra-deep);}
+  .spice{display:flex;gap:3px;}
+  .spice span{font-size:13px;opacity:.25;transition:opacity .2s;}
+  .spice span.active{opacity:1;}
+
+  .gallery{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:200px 200px;gap:14px;}
+  .gallery a{grid-row:1/3;border-radius:10px;overflow:hidden;}
+  .gallery div{border-radius:10px;overflow:hidden;position:relative;cursor:pointer;}
+  .gallery div img{transition:transform .5s ease;}
+  .gallery div:hover img{transform:scale(1.06);}
+  .gallery .cap{position:absolute;bottom:0;left:0;right:0;padding:14px;font-size:13px;color:#fff;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);}
+  .g-main{grid-row:1/3;}
+
+  .carousel{position:relative;max-width:640px;}
+  .carousel-track{overflow:hidden;}
+  .carousel-slides{display:flex;transition:transform .5s ease;}
+  .review-card{min-width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:32px;}
+  .review-stars{color:var(--gold);font-size:15px;margin-bottom:14px;letter-spacing:2px;}
+  .review-text{font-size:17px;font-family:'Fraunces',serif;line-height:1.5;margin-bottom:16px;}
+  .review-name{font-size:13px;color:var(--ink-soft);}
+  .carousel-dots{display:flex;gap:8px;margin-top:20px;}
+  .carousel-dots button{width:8px;height:8px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0;transition:background .2s,transform .2s;}
+  .carousel-dots button.active{background:var(--terra);transform:scale(1.3);}
+
+  .offer{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:36px;display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:center;}
+  .offer h3{font-family:'Fraunces',serif;font-weight:600;font-size:22px;margin-bottom:10px;}
+  .offer p{font-size:14.5px;color:var(--ink-soft);margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:6px;font-size:14px;font-family:'Inter',sans-serif;background:#FDF8F2;transition:border-color .2s;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--terra);}
+  .offer-badge{background:var(--gold-light);border-radius:8px;padding:26px;text-align:center;}
+  .offer-badge .amount{font-family:'Fraunces',serif;font-size:28px;color:var(--gold);font-weight:600;}
+  .offer-badge .label{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+
+  footer{padding:32px 0;text-align:center;font-size:12.5px;color:var(--ink-soft);}
+
+  .float-wa{position:fixed;bottom:24px;right:24px;z-index:90;background:var(--terra-deep);color:#fff;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(126,56,32,0.35);cursor:pointer;border:none;transition:transform .2s;}
+  .float-wa:hover{transform:scale(1.08);}
+  .float-wa svg{width:26px;height:26px;fill:#fff;}
+
+  .popup-backdrop{position:fixed;inset:0;background:rgba(30,15,8,0.5);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px;}
+  .popup-backdrop.show{opacity:1;pointer-events:auto;}
+  .popup-card{background:var(--panel);border-radius:12px;max-width:420px;width:100%;padding:32px;position:relative;transform:translateY(20px) scale(.97);transition:transform .35s ease;}
+  .popup-backdrop.show .popup-card{transform:translateY(0) scale(1);}
+  .popup-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:var(--ink-soft);cursor:pointer;line-height:1;}
+  .popup-eyebrow{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--terra-deep);margin-bottom:8px;}
+  .popup-card h3{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:10px;}
+  .popup-card p{font-size:14px;color:var(--ink-soft);margin-bottom:18px;}
+
+  @media (max-width:760px){
+    .stats-row{grid-template-columns:repeat(2,1fr);row-gap:24px;}
+    .stat-item:nth-child(3){border-left:none;}
+    .slot-grid{grid-template-columns:repeat(3,1fr);}
+    .menu-grid{grid-template-columns:1fr 1fr;}
+    .gallery{grid-template-columns:1fr 1fr;grid-template-rows:150px 150px 150px;}
+    .g-main{grid-column:1/3;grid-row:1/2;}
+    .gallery a{grid-row:auto;}
+    .offer{grid-template-columns:1fr;padding:26px 22px;}
+    h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-row">
+    <div class="brand">Copper &amp; Clove</div>
+    <button class="nav-cta" onclick="document.getElementById('reserve-sec').scrollIntoView({behavior:'smooth'})">Reserve a table</button>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1600&auto=format&fit=crop" alt="Restaurant interior">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="wrap hero-content">
+    <div class="live-badge"><span class="live-dot"></span><span id="live-text">Current wait · 15 min</span></div>
+    <h1 id="hero-h1"></h1>
+    <p class="hero-sub">Copper &amp; Clove has been Koramangala's neighbourhood table for 7 years — slow-cooked, generously spiced, and always worth the wait.</p>
+    <div class="cta-row">
+      <button class="btn-primary" onclick="document.getElementById('reserve-sec').scrollIntoView({behavior:'smooth'})">Reserve a table</button>
+      <button class="btn-outline" onclick="window.open('https://wa.me/919845098765','_blank')">WhatsApp us</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STATS ===================== -->
+<section class="stats">
+  <div class="wrap stats-row reveal-stagger" id="stats-row">
+    <div class="stat-item"><div class="stat-num" data-target="4.6" data-decimal="1">0</div><div class="stat-label">Google rating</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="1240">0</div><div class="stat-label">Diner reviews</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="7">0</div><div class="stat-label">Years in Koramangala</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="15">0</div><div class="stat-label">Min avg wait</div></div>
+  </div>
+</section>
+
+<!-- ===================== RESERVATION WIDGET ===================== -->
+<section class="section reveal" id="reserve-sec">
+  <div class="wrap">
+    <div class="section-label">Reserve a table</div>
+    <h2>Pick a time — no call needed.</h2>
+    <div class="reserve">
+      <div class="reserve-row">
+        <div class="party-stepper">
+          <button onclick="changeParty(-1)">−</button>
+          <span id="party-count">2 guests</span>
+          <button onclick="changeParty(1)">+</button>
+        </div>
+        <div class="date-tabs" id="date-tabs">
+          <div class="date-tab active" onclick="selectDate(this)">Today</div>
+          <div class="date-tab" onclick="selectDate(this)">Tomorrow</div>
+          <div class="date-tab" onclick="selectDate(this)">Sat</div>
+          <div class="date-tab" onclick="selectDate(this)">Sun</div>
+        </div>
+      </div>
+      <div class="slot-label">Available times this evening</div>
+      <div class="slot-grid" id="slot-grid">
+        <div class="slot" onclick="selectSlot(this)">6:30 PM</div>
+        <div class="slot few" onclick="selectSlot(this)">7:00 PM</div>
+        <div class="slot full">7:30 PM</div>
+        <div class="slot" onclick="selectSlot(this)">8:00 PM</div>
+        <div class="slot few" onclick="selectSlot(this)">8:30 PM</div>
+        <div class="slot" onclick="selectSlot(this)">9:00 PM</div>
+        <div class="slot" onclick="selectSlot(this)">9:30 PM</div>
+        <div class="slot full">10:00 PM</div>
+      </div>
+      <button class="btn-primary" style="width:100%;" onclick="confirmReservation()">Confirm reservation</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MENU HIGHLIGHTS ===================== -->
+<section class="section reveal" id="menu-sec">
+  <div class="wrap">
+    <div class="section-label">From the kitchen</div>
+    <h2>A few things people come back for.</h2>
+    <div class="menu-grid">
+      <div class="menu-card">
+        <div class="menu-img"><img src="https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?q=80&w=600&auto=format&fit=crop" alt="Butter chicken"></div>
+        <div class="menu-body">
+          <div class="menu-name">Smoked Butter Chicken</div>
+          <div class="menu-desc">Charcoal-smoked, tomato-cashew gravy</div>
+          <div class="menu-foot">
+            <div class="menu-price">₹420</div>
+            <div class="spice"><span class="active">🌶</span><span class="active">🌶</span><span>🌶</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-img"><img src="https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=600&auto=format&fit=crop" alt="Mutton rogan josh">
+</div>
+        <div class="menu-body">
+          <div class="menu-name">Mutton Rogan Josh</div>
+          <div class="menu-desc">Kashmiri chilies, slow-braised 4 hours</div>
+          <div class="menu-foot">
+            <div class="menu-price">₹560</div>
+            <div class="spice"><span class="active">🌶</span><span class="active">🌶</span><span class="active">🌶</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-img"><img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=600&auto=format&fit=crop" alt="Paneer tikka"></div>
+        <div class="menu-body">
+          <div class="menu-name">Char-Grilled Paneer Tikka</div>
+          <div class="menu-desc">Yoghurt-marinated, tandoor finished</div>
+          <div class="menu-foot">
+            <div class="menu-price">₹340</div>
+            <div class="spice"><span class="active">🌶</span><span>🌶</span><span>🌶</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== GALLERY ===================== -->
+<section class="section reveal" id="gallery-sec">
+  <div class="wrap">
+    <div class="section-label">Take a look inside</div>
+    <h2>The dining room, the kitchen, the regulars.</h2>
+    <div class="gallery">
+      <div class="g-main">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200&auto=format&fit=crop" alt="Dining room">
+        <div class="cap">Dining room</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=800&auto=format&fit=crop" alt="Chef plating">
+        <div class="cap">Open kitchen</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=800&auto=format&fit=crop" alt="Dish presentation">
+        <div class="cap">Chef's specials</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?q=80&w=800&auto=format&fit=crop" alt="Bar area">
+        <div class="cap">Bar &amp; lounge</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?q=80&w=800&auto=format&fit=crop" alt="Outdoor seating">
+        <div class="cap">Outdoor seating</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== REVIEWS ===================== -->
+<section class="section reveal" id="reviews-sec">
+  <div class="wrap">
+    <div class="section-label">From diners on Google</div>
+    <h2>What people say after their first visit.</h2>
+    <div class="carousel">
+      <div class="carousel-track">
+        <div class="carousel-slides" id="carousel-slides">
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"Booked over WhatsApp, table was ready exactly on time. Rogan josh is worth the trip alone."</div>
+            <div class="review-name">Aditi R. · 2 weeks ago</div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"Reserved for 6 without any back-and-forth calling. Rare for a Friday night in Koramangala."</div>
+            <div class="review-name">Farhan A. · 1 month ago</div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"The butter chicken is genuinely different from the usual. We've been back three times this month."</div>
+            <div class="review-name">Meenal J. · 6 weeks ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OFFER ===================== -->
+<section class="section reveal" id="offer">
+  <div class="wrap">
+    <div class="section-label">First-time offer</div>
+    <h2>Free dessert on your first reservation.</h2>
+    <div class="offer">
+      <div>
+        <h3>Not ready to book yet?</h3>
+        <p>Leave your number and we'll send today's specials on WhatsApp, plus your dessert voucher for your first visit.</p>
+        <div class="field"><label>Your name</label><input type="text" placeholder="Neha Bhatt"></div>
+        <div class="field"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+        <button class="btn-primary" style="width:100%;">Send me today's specials</button>
+      </div>
+      <div class="offer-badge">
+        <div class="amount">Free dessert</div>
+        <div class="label">On your first reservation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Copper &amp; Clove · Koramangala, Bangalore · +91 98450 98765</div>
+</footer>
+
+<!-- ===================== FLOATING WHATSAPP ===================== -->
+<button class="float-wa" onclick="window.open('https://wa.me/919845098765','_blank')" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7-1.87-1.87-4.36-2.94-7-2.94zm0 18.1c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.15 8.15 0 0 1-1.25-4.34c0-4.5 3.66-8.16 8.16-8.16 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.78c0 4.5-3.67 8.16-8.16 8.16z"/></svg>
+</button>
+
+<!-- ===================== LEAD CAPTURE POPUP ===================== -->
+<div class="popup-backdrop" id="popup">
+  <div class="popup-card">
+    <button class="popup-close" id="popup-close" aria-label="Close">×</button>
+    <div class="popup-eyebrow">Before you go</div>
+    <h3>Get today's specials on WhatsApp.</h3>
+    <p>We'll send tonight's menu and hold your dessert voucher for 24 hours.</p>
+    <div class="field"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+    <button class="btn-primary" style="width:100%;">Send me the menu</button>
+  </div>
+</div>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); });
+
+  const hero = document.getElementById('hero');
+  window.addEventListener('load', () => hero.classList.add('loaded'));
+  const headline = "Good food, no waiting on hold.";
+  const h1 = document.getElementById('hero-h1');
+  headline.split(' ').forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.style.animationDelay = (i * 0.06) + 's';
+    span.textContent = w + ' ';
+    h1.appendChild(span);
+  });
+
+  const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        if (e.target.id === 'stats-row') animateCounters();
+      }
+    });
+  }, {threshold:0.25});
+  revealEls.forEach(el => io.observe(el));
+
+  let countersDone = false;
+  function animateCounters(){
+    if (countersDone) return;
+    countersDone = true;
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseFloat(el.dataset.target);
+      const decimal = parseInt(el.dataset.decimal || '0');
+      const dur = 1200;
+      const start = performance.now();
+      function tick(now){
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = target * eased;
+        el.textContent = decimal ? val.toFixed(decimal) : Math.round(val);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // reservation widget
+  let partySize = 2;
+  function changeParty(delta){
+    partySize = Math.max(1, Math.min(12, partySize + delta));
+    document.getElementById('party-count').textContent = partySize + (partySize===1?' guest':' guests');
+  }
+  function selectDate(el){
+    document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  let selectedSlot = null;
+  function selectSlot(el){
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedSlot = el.textContent;
+  }
+  function confirmReservation(){
+    if (!selectedSlot){
+      alert('Please choose a time slot first.');
+      return;
+    }
+    alert('Table for ' + partySize + ' reserved at ' + selectedSlot + '. Confirmation will be sent on WhatsApp.');
+  }
+
+  const slidesWrap = document.getElementById('carousel-slides');
+  const slideCount = slidesWrap.children.length;
+  const dotsWrap = document.getElementById('carousel-dots');
+  let current = 0;
+  for (let i=0;i<slideCount;i++){
+    const b = document.createElement('button');
+    if (i===0) b.classList.add('active');
+    b.onclick = () => goTo(i);
+    dotsWrap.appendChild(b);
+  }
+  function goTo(i){
+    current = i;
+    slidesWrap.style.transform = `translateX(-${i*100}%)`;
+    [...dotsWrap.children].forEach((d,idx)=>d.classList.toggle('active', idx===i));
+  }
+  setInterval(()=>{ goTo((current+1)%slideCount); }, 4500);
+
+  const liveMessages = [
+    "Current wait · 15 min",
+    "8 tables booked for tonight",
+    "2 reservations made in the last hour"
+  ];
+  let liveIdx = 0;
+  setInterval(()=>{
+    liveIdx = (liveIdx+1)%liveMessages.length;
+    document.getElementById('live-text').textContent = liveMessages[liveIdx];
+  }, 6000);
+
+  let popupShown = false;
+  const popup = document.getElementById('popup');
+  function maybeShowPopup(){
+    if (popupShown) return;
+    const scrolled = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+    if (scrolled > 0.55){
+      popup.classList.add('show');
+      popupShown = true;
+    }
+  }
+  window.addEventListener('scroll', maybeShowPopup);
+  document.getElementById('popup-close').onclick = () => popup.classList.remove('show');
+  popup.addEventListener('click', (e) => { if (e.target === popup) popup.classList.remove('show'); });
+</script>
+
+</body>
+</html>

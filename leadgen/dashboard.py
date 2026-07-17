@@ -1,8 +1,10 @@
 """Streamlit dashboard for browsing and triaging scraped leads.
 
-Read-only against the leads table, with one explicit write path: updating
-the `status` column from the grid. Does not touch the scraping/enrichment
-pipeline — it only reads (and, for status, writes) data/leads.db.
+Mostly read-only against the leads table, with a few explicit write paths:
+editing `status`, `notes`, and `follow_up_date` from the grid (minimal
+outcome tracking, not a CRM — see DECISIONS.md), and the "+ New Scrape
+Config" tab, which can write new config YAML files and trigger a run via
+main.py's run_stream.
 
 Run with: streamlit run leadgen/dashboard.py
 """
@@ -12,8 +14,9 @@ from __future__ import annotations
 import re
 import sqlite3
 import sys
+from datetime import date
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import streamlit as st
@@ -52,6 +55,8 @@ GRID_COLUMNS = [
     "segment_tag",
     "niche_tag",
     "status",
+    "notes",
+    "follow_up_date",
     "date_found",
     "enrichment_source",
     "enrichment_phone",
@@ -90,17 +95,57 @@ def _load_monthly_budget() -> int:
     return config.api_budget.max_calls_per_month
 
 
-def _save_status_changes(changes: dict[str, str]) -> None:
-    """Write only the status column for the given place_ids. No other column."""
+def _save_changes(changes: Dict[str, Dict[str, Optional[str]]]) -> None:
+    """Write status/notes/follow_up_date for the given place_ids. No other column."""
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.executemany(
-            "UPDATE leads SET status = ? WHERE place_id = ?",
-            [(status, place_id) for place_id, status in changes.items()],
+            "UPDATE leads SET status = ?, notes = ?, follow_up_date = ? WHERE place_id = ?",
+            [
+                (v["status"], v["notes"], v["follow_up_date"], place_id)
+                for place_id, v in changes.items()
+            ],
         )
         conn.commit()
     finally:
         conn.close()
+
+
+def _to_iso_date_or_none(value: Any) -> Optional[str]:
+    """Normalize a data_editor date cell (Timestamp/date/str/NaT/None) to ISO or None."""
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if hasattr(value, "strftime"):
+        return value.strftime("%Y-%m-%d")
+    return str(value)
+
+
+def _to_text_or_none(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return str(value)
+
+
+def _count_due_for_followup(df: pd.DataFrame) -> int:
+    if df.empty or "follow_up_date" not in df.columns:
+        return 0
+    today_str = date.today().isoformat()
+    mask = (
+        df["follow_up_date"].notna()
+        & (df["follow_up_date"] <= today_str)
+        & (~df["status"].isin(["converted", "rejected"]))
+    )
+    return int(mask.sum())
 
 
 def _apply_filters(
@@ -110,6 +155,7 @@ def _apply_filters(
     niche_tags: List[str],
     statuses: List[str],
     has_website: str,
+    due_for_followup_only: bool = False,
 ) -> pd.DataFrame:
     filtered = df
     if sub_areas:
@@ -120,6 +166,13 @@ def _apply_filters(
         filtered = filtered[filtered["niche_tag"].isin(niche_tags)]
     if statuses:
         filtered = filtered[filtered["status"].isin(statuses)]
+    if due_for_followup_only:
+        today_str = date.today().isoformat()
+        filtered = filtered[
+            filtered["follow_up_date"].notna()
+            & (filtered["follow_up_date"] <= today_str)
+            & (~filtered["status"].isin(["converted", "rejected"]))
+        ]
     if has_website == "Yes":
         filtered = filtered[filtered["website"].notna() & (filtered["website"] != "")]
     elif has_website == "No":
@@ -142,7 +195,14 @@ def _render_summary(df: pd.DataFrame) -> None:
 def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
     _render_summary(category_df)
 
-    display_df = category_df[["place_id", *GRID_COLUMNS]].set_index("place_id")
+    due_count = _count_due_for_followup(category_df)
+    if due_count:
+        st.warning(f"{due_count} lead(s) due for follow-up today")
+    else:
+        st.caption("No leads due for follow-up today.")
+
+    display_df = category_df[["place_id", *GRID_COLUMNS]].set_index("place_id").copy()
+    display_df["follow_up_date"] = pd.to_datetime(display_df["follow_up_date"], errors="coerce")
 
     edited_df = st.data_editor(
         display_df,
@@ -163,6 +223,10 @@ def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
             "status": st.column_config.SelectboxColumn(
                 "Status", width="small", options=STATUS_OPTIONS, required=True
             ),
+            "notes": st.column_config.TextColumn("Notes", width="large"),
+            "follow_up_date": st.column_config.DateColumn(
+                "Follow-up date", width="small", format="YYYY-MM-DD"
+            ),
             "date_found": st.column_config.TextColumn("Date found", width="small", disabled=True),
             "enrichment_source": st.column_config.TextColumn(
                 "Enrichment source", width="small", disabled=True
@@ -182,18 +246,35 @@ def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
     save_col, export_col = st.columns([1, 1])
 
     with save_col:
-        if st.button("Save status changes", key=f"save_{category}"):
-            changes = {
-                place_id: new_row["status"]
-                for place_id, new_row in edited_df.iterrows()
-                if new_row["status"] != display_df.loc[place_id, "status"]
-            }
+        if st.button("Save changes", key=f"save_{category}"):
+            changes: Dict[str, Dict[str, Optional[str]]] = {}
+            for place_id, new_row in edited_df.iterrows():
+                orig_row = display_df.loc[place_id]
+
+                new_status = new_row["status"]
+                new_notes = _to_text_or_none(new_row["notes"])
+                new_follow_up = _to_iso_date_or_none(new_row["follow_up_date"])
+
+                orig_notes = _to_text_or_none(orig_row["notes"])
+                orig_follow_up = _to_iso_date_or_none(orig_row["follow_up_date"])
+
+                if (
+                    new_status != orig_row["status"]
+                    or new_notes != orig_notes
+                    or new_follow_up != orig_follow_up
+                ):
+                    changes[place_id] = {
+                        "status": new_status,
+                        "notes": new_notes,
+                        "follow_up_date": new_follow_up,
+                    }
+
             if changes:
-                _save_status_changes(changes)
-                st.success(f"Saved {len(changes)} status change(s).")
+                _save_changes(changes)
+                st.success(f"Saved {len(changes)} change(s).")
                 st.rerun()
             else:
-                st.info("No status changes to save.")
+                st.info("No changes to save.")
 
     with export_col:
         csv_bytes = category_df[GRID_COLUMNS].to_csv(index=False).encode("utf-8")
@@ -472,6 +553,7 @@ def main() -> None:
     niche_tags: List[str] = []
     statuses: List[str] = []
     has_website = "All"
+    due_for_followup_only = False
 
     if not df.empty:
         st.sidebar.header("Filters")
@@ -488,6 +570,9 @@ def main() -> None:
             "Status", sorted(df["status"].dropna().unique().tolist())
         )
         has_website = st.sidebar.radio("Has website", ["All", "Yes", "No"], horizontal=True)
+        due_for_followup_only = st.sidebar.checkbox(
+            "Due for follow-up", key="due_for_followup_filter"
+        )
         categories = sorted(df["category"].dropna().unique().tolist())
     else:
         st.info("No leads yet. Use the '+ New Scrape Config' tab below to get started.")
@@ -498,7 +583,13 @@ def main() -> None:
         with tab:
             category_df = df[df["category"] == category]
             filtered_df = _apply_filters(
-                category_df, sub_areas, segment_tags, niche_tags, statuses, has_website
+                category_df,
+                sub_areas,
+                segment_tags,
+                niche_tags,
+                statuses,
+                has_website,
+                due_for_followup_only,
             )
             _render_category_tab(category, filtered_df)
 

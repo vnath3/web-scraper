@@ -74,6 +74,12 @@ SQLite database (`data/leads.db`) with three tables: `leads`,
 `api_call_log`, `scraped_subareas`. Leads are inserted with
 insert-or-ignore dedup on `place_id`.
 
+The `leads` table also carries a minimal outcome-tracking pair: `notes`
+(free-form text, overwritten not logged) and `follow_up_date` (a single
+next-contact date). These are written only from the dashboard, never by
+the scrape pipeline. See [DECISIONS.md](DECISIONS.md) for why this stops
+well short of a CRM.
+
 ## 7. Presentation Layer
 
 **File:** `leadgen/dashboard.py`

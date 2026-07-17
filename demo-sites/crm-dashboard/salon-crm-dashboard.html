@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadLoop — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F2EE; --panel:#FFFFFF; --ink:#2E2420; --ink-soft:#8A7A72;
+    --rose:#B5405A; --rose-deep:#7D2A3E; --rose-light:#F6E2E7;
+    --gold:#C08A3E; --gold-light:#F4E9D5;
+    --purple:#6A5FC7; --purple-light:#EDEBFA;
+    --line:#EEDFD6; --sidebar:#241A1F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);}
+  button{font-family:'Inter',sans-serif;}
+
+  .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+
+  .sidebar{background:var(--sidebar);color:#EFE4DD;padding:24px 16px;display:flex;flex-direction:column;}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;padding:0 8px 28px;display:flex;align-items:center;gap:8px;}
+  .logo .dot{width:8px;height:8px;border-radius:50%;background:#E8B04A;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;font-size:14px;color:#CDBDB5;cursor:pointer;margin-bottom:2px;transition:background .15s,color .15s;}
+  .nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .nav-item.active{background:rgba(232,176,74,0.16);color:#E8B04A;font-weight:500;}
+  .nav-badge{margin-left:auto;background:var(--rose);color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:999px;letter-spacing:.02em;}
+  .sidebar-foot{margin-top:auto;padding:12px;font-size:12px;color:#8A7A72;}
+
+  .main{padding:32px 40px;overflow-x:hidden;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+  .topbar h1{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;}
+  .clinic-select{font-size:13px;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:8px;}
+
+  .tab-content{display:none;}
+  .tab-content.active{display:block;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .metric-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;}
+  .metric-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .metric-value{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;}
+  .metric-trend{font-size:12px;margin-top:6px;color:var(--rose-deep);display:flex;align-items:center;gap:4px;}
+
+  .dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;}
+  .card-title{font-size:14.5px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+  .live-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--rose-deep);background:var(--rose-light);padding:4px 9px;border-radius:999px;font-weight:500;}
+  .live-pill .d{width:6px;height:6px;border-radius:50%;background:var(--rose);animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(181,64,90,.5);}70%{box-shadow:0 0 0 6px rgba(181,64,90,0);}100%{box-shadow:0 0 0 0 rgba(181,64,90,0);}}
+
+  .bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:6px;}
+  .bar{flex:1;background:linear-gradient(180deg,#E8B04A,#B5405A);border-radius:4px 4px 0 0;transform:scaleY(0);transform-origin:bottom;transition:transform 1s ease;}
+  .bar-labels{display:flex;gap:8px;margin-top:8px;}
+  .bar-labels span{flex:1;text-align:center;font-size:10.5px;color:var(--ink-soft);}
+
+  .feed{display:flex;flex-direction:column;gap:12px;max-height:340px;overflow:hidden;}
+  .feed-item{display:flex;gap:10px;font-size:13px;padding:10px;border-radius:8px;background:#FBF6F2;opacity:0;transform:translateY(-6px);animation:feedIn .4s ease forwards;}
+  @keyframes feedIn{to{opacity:1;transform:translateY(0);}}
+  .feed-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .feed-icon.new{background:var(--rose-light);color:var(--rose-deep);}
+  .feed-icon.ai{background:var(--purple-light);color:var(--purple);}
+  .feed-icon.book{background:var(--gold-light);color:var(--gold);}
+  .feed-text b{font-weight:600;}
+  .feed-time{font-size:11px;color:var(--ink-soft);margin-left:auto;white-space:nowrap;}
+
+  .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  .col-title{font-size:12.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;display:flex;justify-content:space-between;}
+  .col-count{background:var(--line);color:var(--ink-soft);font-size:11px;padding:1px 7px;border-radius:999px;}
+  .lead-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:10px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+  .lead-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.06);}
+  .lead-name{font-size:13.5px;font-weight:600;margin-bottom:4px;}
+  .lead-meta{font-size:11.5px;color:var(--ink-soft);}
+  .lead-source{display:inline-block;margin-top:8px;font-size:10.5px;padding:2px 7px;border-radius:999px;background:var(--rose-light);color:var(--rose-deep);}
+
+  .automation-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+  .auto-row{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:16px;}
+  .auto-icon{width:38px;height:38px;border-radius:9px;background:var(--purple-light);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .auto-info{flex:1;}
+  .auto-title{font-size:14px;font-weight:600;}
+  .auto-desc{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+  .switch{position:relative;width:40px;height:22px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:var(--line);border-radius:999px;cursor:pointer;transition:background .2s;}
+  .slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;}
+  .switch input:checked + .slider{background:var(--rose);}
+  .switch input:checked + .slider:before{transform:translateX(18px);}
+
+  .chat-demo-wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:24px;}
+  .chat-explain h3{font-family:'Space Grotesk',sans-serif;font-size:18px;margin-bottom:10px;}
+  .chat-explain p{font-size:14px;color:var(--ink-soft);margin-bottom:14px;line-height:1.6;}
+  .chat-explain ul{margin-left:18px;color:var(--ink-soft);font-size:13.5px;line-height:1.9;}
+  .phone{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:0;overflow:hidden;}
+  .phone-head{background:var(--rose-deep);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;}
+  .phone-head .av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+  .phone-body{background:#F3E7E0;min-height:380px;padding:18px;display:flex;flex-direction:column;gap:10px;}
+  .bubble{max-width:78%;padding:10px 13px;border-radius:12px;font-size:13.5px;opacity:0;transform:translateY(8px);animation:bubbleIn .35s ease forwards;line-height:1.45;}
+  @keyframes bubbleIn{to{opacity:1;transform:translateY(0);}}
+  .bubble.in{background:#fff;align-self:flex-start;border-bottom-left-radius:3px;}
+  .bubble.out{background:var(--rose);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+  .bubble .tag{display:block;font-size:10px;opacity:.75;margin-top:5px;}
+  .typing{align-self:flex-start;background:#fff;border-radius:12px;border-bottom-left-radius:3px;padding:10px 14px;display:flex;gap:4px;opacity:0;animation:bubbleIn .3s ease forwards;}
+  .typing span{width:6px;height:6px;background:#C7B8AE;border-radius:50%;animation:bounce 1s infinite;}
+  .typing span:nth-child(2){animation-delay:.15s;}
+  .typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
+  .system-chip{align-self:center;background:var(--gold-light);color:var(--gold);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:999px;opacity:0;animation:bubbleIn .35s ease forwards;}
+
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .metrics{grid-template-columns:repeat(2,1fr);}
+    .dash-grid{grid-template-columns:1fr;}
+    .pipeline{grid-template-columns:1fr 1fr;}
+    .chat-demo-wrap{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="dot"></span>LeadLoop</div>
+    <div class="nav-item active" data-tab="dashboard">Dashboard</div>
+    <div class="nav-item" data-tab="pipeline">Leads &amp; pipeline</div>
+    <div class="nav-item" data-tab="automations">Automations &amp; AI<span class="nav-badge">LIVE</span></div>
+    <div class="sidebar-foot">Aura Beauty Lounge<br>Bandra, Mumbai · common CRM build</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="page-title">Dashboard</h1>
+      <div class="clinic-select">Aura Beauty Lounge ▾</div>
+    </div>
+
+    <!-- ========== DASHBOARD TAB ========== -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-label">Leads captured (30d)</div>
+          <div class="metric-value" data-target="247">0</div>
+          <div class="metric-trend">↑ 31% vs last month</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Lead → booked conversion</div>
+          <div class="metric-value" data-target="41" data-suffix="%">0</div>
+          <div class="metric-trend">↑ 8pt vs last month</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Show-up rate</div>
+          <div class="metric-value" data-target="92" data-suffix="%">0</div>
+          <div class="metric-trend">↑ 9pt since AI reminders</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Revenue recovered</div>
+          <div class="metric-value" data-target="221000" data-prefix="₹" data-format="lakh">₹0</div>
+          <div class="metric-trend">↑ from rebooked no-shows</div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-title">Leads by day <span class="live-pill"><span class="d"></span>updating</span></div>
+          <div class="bar-chart" id="bar-chart"></div>
+          <div class="bar-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Live activity <span class="live-pill"><span class="d"></span>live</span></div>
+          <div class="feed" id="feed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PIPELINE / CRM TAB ========== -->
+    <div class="tab-content" id="tab-pipeline">
+      <div class="pipeline">
+        <div>
+          <div class="col-title">New <span class="col-count">8</span></div>
+          <div class="lead-card"><div class="lead-name">Isha Kapoor</div><div class="lead-meta">Landing page · 3m ago</div><span class="lead-source">20% off offer</span></div>
+          <div class="lead-card"><div class="lead-name">Ritika Bose</div><div class="lead-meta">Instagram · 18m ago</div><span class="lead-source">Bridal enquiry</span></div>
+          <div class="lead-card"><div class="lead-name">Ayesha Khan</div><div class="lead-meta">Google listing · 40m ago</div><span class="lead-source">Direct</span></div>
+        </div>
+        <div>
+          <div class="col-title">Contacted <span class="col-count">6</span></div>
+          <div class="lead-card"><div class="lead-name">Priya Nair</div><div class="lead-meta">AI greeting sent · 1h ago</div><span class="lead-source">Spa</span></div>
+          <div class="lead-card"><div class="lead-name">Tanvi Shah</div><div class="lead-meta">Awaiting reply · 2h ago</div><span class="lead-source">Hair colour</span></div>
+        </div>
+        <div>
+          <div class="col-title">Booked <span class="col-count">9</span></div>
+          <div class="lead-card"><div class="lead-name">Rhea D'Souza</div><div class="lead-meta">Thu 3:00 PM</div><span class="lead-source">AI booked</span></div>
+          <div class="lead-card"><div class="lead-name">Simran Kaur</div><div class="lead-meta">Sat 11:00 AM · Bridal trial</div><span class="lead-source">AI booked</span></div>
+        </div>
+        <div>
+          <div class="col-title">Showed <span class="col-count">34</span></div>
+          <div class="lead-card"><div class="lead-name">Meher Chatterjee</div><div class="lead-meta">Visited yesterday</div><span class="lead-source">Returning</span></div>
+          <div class="lead-card"><div class="lead-name">Nandini Rao</div><div class="lead-meta">Visited Mon</div><span class="lead-source">Returning</span></div>
+        </div>
+        <div>
+          <div class="col-title">No-show / re-engage <span class="col-count">4</span></div>
+          <div class="lead-card"><div class="lead-name">Alia Fernandes</div><div class="lead-meta">AI follow-up sent</div><span class="lead-source">Re-engaging</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== AUTOMATIONS & AI TAB ========== -->
+    <div class="tab-content" id="tab-automations">
+      <div class="automation-list">
+        <div class="auto-row">
+          <div class="auto-icon">◐</div>
+          <div class="auto-info"><div class="auto-title">Instant greeting on new lead</div><div class="auto-desc">AI reads the lead form and sends a personalized WhatsApp greeting within seconds</div></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="auto-row">
+          <div class="auto-icon">◐</div>
+          <div class="auto-info"><div class="auto-title">Reads replies &amp; books appointments</div><div class="auto-desc">AI understands the reply, checks the calendar, and confirms a slot automatically</div></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="auto-row">
+          <div class="auto-icon">◐</div>
+          <div class="auto-info"><div class="auto-title">Appointment reminders</div><div class="auto-desc">Sends a confirmation and a day-before reminder to reduce no-shows</div></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="auto-row">
+          <div class="auto-icon">◐</div>
+          <div class="auto-info"><div class="auto-title">Rebooking reminder</div><div class="auto-desc">Nudges clients to rebook 5–6 weeks after a colour or spa service, timed to typical regrowth cycles</div></div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="auto-row">
+          <div class="auto-icon">◐</div>
+          <div class="auto-info"><div class="auto-title">Bridal enquiry follow-up sequence</div><div class="auto-desc">Multi-touch WhatsApp sequence for bridal leads who haven't booked a trial yet</div></div>
+          <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="chat-demo-wrap">
+        <div class="chat-explain">
+          <h3>See the AI handle a real conversation</h3>
+          <p>This is what happens the moment a lead comes in — no staff member touches it until the appointment is already on the calendar.</p>
+          <ul>
+            <li>Reads the incoming message</li>
+            <li>Replies in natural language, not a script</li>
+            <li>Checks real availability before offering times</li>
+            <li>Books the slot and logs it in the CRM</li>
+          </ul>
+        </div>
+        <div class="phone">
+          <div class="phone-head"><div class="av">RB</div>Ritika Bose</div>
+          <div class="phone-body" id="chat-body"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const titles = {dashboard:'Dashboard', pipeline:'Leads & pipeline', automations:'Automations & AI'};
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      navItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + item.dataset.tab).classList.add('active');
+      document.getElementById('page-title').textContent = titles[item.dataset.tab];
+    });
+  });
+
+  function formatVal(el, val){
+    const suffix = el.dataset.suffix || '';
+    const prefix = el.dataset.prefix || '';
+    if (el.dataset.format === 'lakh'){
+      return prefix + Math.round(val).toLocaleString('en-IN');
+    }
+    return prefix + Math.round(val) + suffix;
+  }
+  document.querySelectorAll('.metric-value').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const dur = 1300;
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min((now - start)/dur, 1);
+      const eased = 1 - Math.pow(1-p, 3);
+      el.textContent = formatVal(el, target*eased);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  const barVals = [55,70,45,85,90,95,60];
+  const barChart = document.getElementById('bar-chart');
+  barVals.forEach((v,i) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    barChart.appendChild(bar);
+    setTimeout(()=>{ bar.style.transform = `scaleY(${v/100})`; }, 150 + i*80);
+  });
+
+  const feedEvents = [
+    {cls:'new', html:'<b>Isha Kapoor</b> claimed the 20% off offer', time:'Just now'},
+    {cls:'ai', html:'AI sent a WhatsApp greeting to <b>Ritika Bose</b>', time:'1m ago'},
+    {cls:'book', html:'AI booked <b>Rhea D\'Souza</b> for Thu 3:00 PM', time:'8m ago'},
+    {cls:'ai', html:'AI sent a rebooking reminder to <b>Nandini Rao</b>', time:'19m ago'},
+    {cls:'new', html:'<b>Ayesha Khan</b> viewed the landing page', time:'40m ago'},
+    {cls:'book', html:'<b>Simran Kaur</b> confirmed her bridal trial on WhatsApp', time:'1h ago'},
+  ];
+  const feedEl = document.getElementById('feed');
+  const icons = {new:'●', ai:'AI', book:'✓'};
+  function renderFeed(){
+    feedEl.innerHTML = '';
+    feedEvents.forEach((ev,i) => {
+      const div = document.createElement('div');
+      div.className = 'feed-item';
+      div.style.animationDelay = (i*0.08)+'s';
+      div.innerHTML = `<div class="feed-icon ${ev.cls}">${icons[ev.cls]}</div><div class="feed-text">${ev.html}</div><div class="feed-time">${ev.time}</div>`;
+      feedEl.appendChild(div);
+    });
+  }
+  renderFeed();
+  setInterval(() => {
+    feedEvents.unshift({cls:'ai', html:'AI answered a new WhatsApp message', time:'Just now'});
+    feedEvents.pop();
+    renderFeed();
+  }, 7000);
+
+  const chatBody = document.getElementById('chat-body');
+  const script = [
+    {type:'in', text:"Hi! Do you have bridal trial slots open this Saturday?"},
+    {type:'typing'},
+    {type:'out', text:"Hi Ritika! Yes, we have a bridal trial slot open Saturday at 11:00 AM with our senior artist. Should I hold it for you?", tag:'AI · instant reply'},
+    {type:'in', text:"Yes please, hold it!"},
+    {type:'typing'},
+    {type:'out', text:"You're booked for Saturday, 11:00 AM — bridal trial. I'll send the prep checklist and a reminder the day before. Excited for you!", tag:'AI · instant reply'},
+    {type:'system', text:'✓ Appointment created in CRM'},
+  ];
+  let step = 0;
+  function playChat(){
+    chatBody.innerHTML = '';
+    step = 0;
+    nextStep();
+  }
+  function nextStep(){
+    if (step >= script.length){
+      setTimeout(playChat, 3200);
+      return;
+    }
+    const item = script[step];
+    if (item.type === 'typing'){
+      const t = document.createElement('div');
+      t.className = 'typing';
+      t.innerHTML = '<span></span><span></span><span></span>';
+      chatBody.appendChild(t);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      setTimeout(() => { t.remove(); step++; nextStep(); }, 1100);
+      return;
+    }
+    if (item.type === 'system'){
+      const s = document.createElement('div');
+      s.className = 'system-chip';
+      s.textContent = item.text;
+      chatBody.appendChild(s);
+    } else {
+      const b = document.createElement('div');
+      b.className = 'bubble ' + item.type;
+      b.innerHTML = item.text + (item.tag ? `<span class="tag">${item.tag}</span>` : '');
+      chatBody.appendChild(b);
+    }
+    chatBody.scrollTop = chatBody.scrollHeight;
+    step++;
+    setTimeout(nextStep, 900);
+  }
+  playChat();
+</script>
+
+</body>
+</html>

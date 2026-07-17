@@ -16,8 +16,16 @@ session doesn't mistake a scoped-out feature for a missing bug.
 - **Scheduling/cron automation** — currently manual CLI invocation only.
 - **Slack/Sheets/webhook export** — currently CSV export + Streamlit
   dashboard only.
-- **CRM integration** — status tracking currently lives only in the local
-  SQLite database and dashboard, not synced to any external CRM.
+- **Full CRM** — a minimal outcome-tracking layer exists (`status`, a
+  single `notes` field, a single `follow_up_date`, and a "Due for
+  follow-up" pull-filter in the dashboard — see DECISIONS.md), but these
+  three remain deliberately out of scope beyond that:
+  - **Contact history / multiple touch logging** — `notes` is one
+    overwritten field, not a log of every call/email/visit.
+  - **Automated reminders/notifications** — "Due for follow-up" is a
+    pull (you check the dashboard), not a push (no emails, no alerts).
+  - **Task boards** — no kanban/pipeline view beyond the `status` dropdown.
+  - Also still true: no sync to any external CRM.
 - **Multi-user access to the dashboard** — currently single-user,
   local-only, no auth.
 

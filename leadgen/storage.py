@@ -56,6 +56,13 @@ NICHE_COLUMNS = {
     "niche_tag": "TEXT",
 }
 
+# Minimal outcome-tracking: one free-form note (overwritten, not a log) and
+# one next-contact date. Deliberately not a CRM — see DECISIONS.md.
+OUTCOME_COLUMNS = {
+    "notes": "TEXT",
+    "follow_up_date": "TEXT",
+}
+
 
 def _migrate_columns(conn: sqlite3.Connection, columns: Dict[str, str]) -> None:
     existing = {row[1] for row in conn.execute("PRAGMA table_info(leads)").fetchall()}
@@ -73,6 +80,7 @@ def _connect(db_path: str | Path = DEFAULT_DB_PATH) -> Iterator[sqlite3.Connecti
         conn.executescript(SCHEMA)
         _migrate_columns(conn, ENRICHMENT_COLUMNS)
         _migrate_columns(conn, NICHE_COLUMNS)
+        _migrate_columns(conn, OUTCOME_COLUMNS)
         yield conn
         conn.commit()
     finally:
@@ -255,6 +263,50 @@ def update_niche_tag(
             "UPDATE leads SET niche_tag = ? WHERE place_id = ?",
             (niche_tag, place_id),
         )
+
+
+def update_notes(
+    place_id: str, notes: Optional[str], db_path: str | Path = DEFAULT_DB_PATH
+) -> None:
+    """Overwrite the free-form notes field for a single lead."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            "UPDATE leads SET notes = ? WHERE place_id = ?",
+            (notes, place_id),
+        )
+
+
+def update_follow_up_date(
+    place_id: str, follow_up_date: Optional[str], db_path: str | Path = DEFAULT_DB_PATH
+) -> None:
+    """Set (or clear, if None) the next-contact date for a single lead."""
+    with _connect(db_path) as conn:
+        conn.execute(
+            "UPDATE leads SET follow_up_date = ? WHERE place_id = ?",
+            (follow_up_date, place_id),
+        )
+
+
+def get_leads_due_for_followup(
+    as_of_date: str | date, db_path: str | Path = DEFAULT_DB_PATH
+) -> List[Dict[str, Any]]:
+    """Leads with follow_up_date <= as_of_date, excluding converted/rejected."""
+    if isinstance(as_of_date, date):
+        as_of_date = as_of_date.isoformat()
+
+    with _connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT * FROM leads
+            WHERE follow_up_date IS NOT NULL
+              AND follow_up_date <= ?
+              AND status NOT IN ('converted', 'rejected')
+            ORDER BY follow_up_date ASC
+            """,
+            (as_of_date,),
+        ).fetchall()
+        return [dict(row) for row in rows]
 
 
 def update_enrichment(

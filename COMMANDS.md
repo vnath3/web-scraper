@@ -55,6 +55,16 @@ python main.py export --output leads.csv
 streamlit run leadgen/dashboard.py
 ```
 
+Each category tab's grid has three editable columns: `status`, `notes`
+(free-form, overwritten on each save — not a log), and `follow_up_date`
+(a single next-contact date). Edit cells, then click **Save changes** to
+write only the rows that actually changed. The sidebar's **"Due for
+follow-up"** toggle filters to leads with `follow_up_date` today or
+earlier that aren't `converted`/`rejected` — the "what do I call today"
+view — and each tab shows a small count of leads due today near the top.
+This is intentionally minimal outcome tracking, not a CRM — see
+DECISIONS.md.
+
 Besides browsing/triaging existing leads, the dashboard's **"+ New Scrape
 Config" tab** can create new vertical configs and run them without
 touching a terminal:

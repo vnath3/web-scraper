@@ -102,3 +102,22 @@ pipeline. Existing leads were backfilled via
 (pre-existing rows have no `google_types` captured) — expect a meaningful
 share of older rows to land on `unspecified` where the business name alone
 doesn't signal a sub-niche (e.g. a clinic named only after its owner).
+
+## notes/follow_up_date are a minimal outcome-tracking layer, explicitly scoped below a full CRM
+
+`leads.notes` and `leads.follow_up_date` exist to answer "what do I call
+today?" directly in the dashboard, without standing up a CRM. This was
+deliberately kept minimal:
+
+- `notes` is a single free-form text field, overwritten on each save —
+  not a multi-entry contact-history log. Deferred.
+- `follow_up_date` is a single next-contact date, not a task/reminder
+  system. The "Due for follow-up" sidebar filter is a pull (you open the
+  dashboard and check), not a push — no notifications, no alerts.
+- No automated reminders, no task board, no per-contact-attempt history.
+
+If a full CRM is ever justified later, those three are the concrete
+deferred items (also listed in [ROADMAP.md](ROADMAP.md)) — this decision
+exists so a future session doesn't read "add contact history" as an
+oversight and quietly bolt it onto these two columns. That's a different,
+larger feature, not an extension of this one.

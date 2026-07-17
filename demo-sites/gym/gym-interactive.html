@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ironclad Fitness Studio — Book a free trial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#111311; --panel:#1B1E1B; --ink:#F2F1EA; --ink-soft:#9C9A90;
+    --lime:#C7E85A; --lime-deep:#9CBB35; --lime-dim:rgba(199,232,90,0.12);
+    --red:#E0473F; --line:#2B2E2A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden;}
+  a{color:inherit;}
+  img{display:block;width:100%;height:100%;object-fit:cover;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+  button{font-family:'Inter',sans-serif;}
+
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-stagger > *{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+  .reveal-stagger.in > *:nth-child(1){transition-delay:.05s;}
+  .reveal-stagger.in > *:nth-child(2){transition-delay:.15s;}
+  .reveal-stagger.in > *:nth-child(3){transition-delay:.25s;}
+  .reveal-stagger.in > *:nth-child(4){transition-delay:.35s;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 0;transition:background .3s ease,box-shadow .3s ease,padding .3s ease;}
+  nav.scrolled{background:rgba(17,19,17,0.92);backdrop-filter:blur(6px);box-shadow:0 1px 0 var(--line);padding:12px 0;}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;}
+  .brand{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:.02em;color:#fff;}
+  .nav-cta{background:var(--lime);color:#111311;border:none;padding:10px 20px;border-radius:4px;font-size:13.5px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.03em;}
+
+  .hero{position:relative;height:92vh;min-height:600px;display:flex;align-items:flex-end;overflow:hidden;}
+  .hero-bg{position:absolute;inset:0;z-index:0;}
+  .hero-bg img{transform:scale(1.08);transition:transform 6s ease;filter:grayscale(30%) contrast(1.05);}
+  .hero.loaded .hero-bg img{transform:scale(1);}
+  .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,10,0.2) 0%,rgba(10,12,10,0.6) 60%,rgba(10,12,10,0.92) 100%);z-index:1;}
+  .hero-content{position:relative;z-index:2;color:#fff;padding-bottom:64px;width:100%;}
+  .live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);padding:7px 14px;border-radius:4px;font-size:12.5px;margin-bottom:22px;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(199,232,90,.6);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(199,232,90,.5);}70%{box-shadow:0 0 0 8px rgba(199,232,90,0);}100%{box-shadow:0 0 0 0 rgba(199,232,90,0);}}
+  h1{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(36px,6vw,64px);line-height:1.05;letter-spacing:.005em;max-width:680px;text-transform:uppercase;}
+  .word{display:inline-block;opacity:0;transform:translateY(16px);animation:wordIn .6s ease forwards;}
+  @keyframes wordIn{to{opacity:1;transform:translateY(0);}}
+  .hero-sub{margin-top:18px;font-size:17px;color:rgba(255,255,255,0.8);max-width:460px;font-family:'Inter',sans-serif;}
+  .cta-row{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{background:var(--lime);color:#111311;border:none;padding:14px 26px;font-size:14.5px;font-weight:700;border-radius:4px;cursor:pointer;transition:background .2s,transform .2s;text-transform:uppercase;letter-spacing:.03em;}
+  .btn-primary:hover{background:var(--lime-deep);transform:translateY(-1px);}
+  .btn-outline{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.35);padding:14px 24px;border-radius:4px;font-size:14px;font-weight:500;cursor:pointer;}
+
+  .stats{background:var(--panel);border-bottom:1px solid var(--line);}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);padding:44px 0;}
+  .stat-item{text-align:center;border-left:1px solid var(--line);}
+  .stat-item:first-child{border-left:none;}
+  .stat-num{font-family:'Anton',sans-serif;font-weight:400;font-size:36px;color:var(--lime);}
+  .stat-label{font-size:12px;color:var(--ink-soft);margin-top:4px;text-transform:uppercase;letter-spacing:.03em;}
+
+  .section{padding:64px 0;border-bottom:1px solid var(--line);}
+  .section-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--lime);margin-bottom:12px;font-weight:600;}
+  .section h2{font-family:'Anton',sans-serif;font-weight:400;font-size:32px;margin-bottom:32px;max-width:560px;text-transform:uppercase;letter-spacing:.01em;}
+
+  /* ---------- goal quiz ---------- */
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:36px;max-width:640px;}
+  .quiz-progress{display:flex;gap:6px;margin-bottom:24px;}
+  .quiz-progress span{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
+  .quiz-progress span i{display:block;height:100%;background:var(--lime);width:0%;transition:width .3s ease;}
+  .quiz-step{display:none;}
+  .quiz-step.active{display:block;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .quiz-q{font-size:19px;font-weight:600;margin-bottom:20px;}
+  .quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .quiz-opt{background:#232620;border:1px solid var(--line);border-radius:8px;padding:16px;font-size:14px;cursor:pointer;transition:border-color .2s,background .2s;text-align:left;color:var(--ink);}
+  .quiz-opt:hover{border-color:var(--lime);}
+  .quiz-opt.selected{border-color:var(--lime);background:var(--lime-dim);}
+  .quiz-result{text-align:center;}
+  .quiz-result .badge{display:inline-block;background:var(--lime-dim);color:var(--lime);font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px;}
+  .quiz-result h3{font-family:'Anton',sans-serif;font-size:26px;margin-bottom:12px;text-transform:uppercase;}
+  .quiz-result p{color:var(--ink-soft);font-size:14px;margin-bottom:22px;max-width:420px;margin-left:auto;margin-right:auto;}
+
+  /* ---------- class capacity grid ---------- */
+  .class-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .class-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;}
+  .class-name{font-size:14.5px;font-weight:700;margin-bottom:4px;}
+  .class-time{font-size:12px;color:var(--ink-soft);margin-bottom:14px;}
+  .capacity-bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:8px;}
+  .capacity-bar i{display:block;height:100%;border-radius:3px;transform:scaleX(0);transform-origin:left;transition:transform 1.1s ease;}
+  .capacity-label{font-size:11.5px;color:var(--ink-soft);display:flex;justify-content:space-between;}
+  .capacity-label .tag{color:var(--red);font-weight:700;}
+
+  .gallery{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:200px 200px;gap:14px;}
+  .gallery a{grid-row:1/3;border-radius:8px;overflow:hidden;}
+  .gallery div{border-radius:8px;overflow:hidden;position:relative;cursor:pointer;}
+  .gallery div img{transition:transform .5s ease;filter:grayscale(15%);}
+  .gallery div:hover img{transform:scale(1.06);}
+  .gallery .cap{position:absolute;bottom:0;left:0;right:0;padding:14px;font-size:13px;color:#fff;background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);}
+  .g-main{grid-row:1/3;}
+
+  .carousel{position:relative;max-width:640px;}
+  .carousel-track{overflow:hidden;}
+  .carousel-slides{display:flex;transition:transform .5s ease;}
+  .review-card{min-width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:32px;}
+  .review-stars{color:var(--lime);font-size:15px;margin-bottom:14px;letter-spacing:2px;}
+  .review-text{font-size:16.5px;line-height:1.5;margin-bottom:16px;}
+  .review-name{font-size:13px;color:var(--ink-soft);}
+  .carousel-dots{display:flex;gap:8px;margin-top:20px;}
+  .carousel-dots button{width:8px;height:8px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0;transition:background .2s,transform .2s;}
+  .carousel-dots button.active{background:var(--lime);transform:scale(1.3);}
+
+  .offer{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:36px;display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:center;}
+  .offer h3{font-family:'Anton',sans-serif;font-size:24px;margin-bottom:10px;text-transform:uppercase;}
+  .offer p{font-size:14.5px;color:var(--ink-soft);margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:6px;font-size:14px;font-family:'Inter',sans-serif;background:#1F221E;color:var(--ink);transition:border-color .2s;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--lime);}
+  .offer-badge{background:var(--lime-dim);border-radius:8px;padding:26px;text-align:center;}
+  .offer-badge .amount{font-family:'Anton',sans-serif;font-size:28px;color:var(--lime);text-transform:uppercase;}
+  .offer-badge .label{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+
+  footer{padding:32px 0;text-align:center;font-size:12.5px;color:var(--ink-soft);}
+
+  .float-wa{position:fixed;bottom:24px;right:24px;z-index:90;background:var(--lime);color:#111311;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(199,232,90,0.3);cursor:pointer;border:none;transition:transform .2s;}
+  .float-wa:hover{transform:scale(1.08);}
+  .float-wa svg{width:26px;height:26px;fill:#111311;}
+
+  .popup-backdrop{position:fixed;inset:0;background:rgba(5,6,5,0.65);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px;}
+  .popup-backdrop.show{opacity:1;pointer-events:auto;}
+  .popup-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:420px;width:100%;padding:32px;position:relative;transform:translateY(20px) scale(.97);transition:transform .35s ease;}
+  .popup-backdrop.show .popup-card{transform:translateY(0) scale(1);}
+  .popup-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:var(--ink-soft);cursor:pointer;line-height:1;}
+  .popup-eyebrow{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--lime);margin-bottom:8px;font-weight:600;}
+  .popup-card h3{font-family:'Anton',sans-serif;font-size:22px;margin-bottom:10px;text-transform:uppercase;}
+  .popup-card p{font-size:14px;color:var(--ink-soft);margin-bottom:18px;}
+
+  @media (max-width:760px){
+    .stats-row{grid-template-columns:repeat(2,1fr);row-gap:24px;}
+    .stat-item:nth-child(3){border-left:none;}
+    .quiz-options{grid-template-columns:1fr;}
+    .class-grid{grid-template-columns:1fr 1fr;}
+    .gallery{grid-template-columns:1fr 1fr;grid-template-rows:150px 150px 150px;}
+    .g-main{grid-column:1/3;grid-row:1/2;}
+    .gallery a{grid-row:auto;}
+    .offer{grid-template-columns:1fr;padding:26px 22px;}
+    h1{font-size:34px;}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-row">
+    <div class="brand">IRONCLAD</div>
+    <button class="nav-cta" onclick="document.getElementById('offer').scrollIntoView({behavior:'smooth'})">Free trial</button>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1600&auto=format&fit=crop" alt="Gym interior">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="wrap hero-content">
+    <div class="live-badge"><span class="live-dot"></span><span id="live-text">17 people checked in today</span></div>
+    <h1 id="hero-h1"></h1>
+    <p class="hero-sub">Ironclad Fitness Studio, Indiranagar — strength, conditioning, and coaching that actually tracks your progress, not just your attendance.</p>
+    <div class="cta-row">
+      <button class="btn-primary" onclick="document.getElementById('quiz-sec').scrollIntoView({behavior:'smooth'})">Find my plan</button>
+      <button class="btn-outline" onclick="window.open('https://wa.me/919900112233','_blank')">WhatsApp us</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STATS ===================== -->
+<section class="stats">
+  <div class="wrap stats-row reveal-stagger" id="stats-row">
+    <div class="stat-item"><div class="stat-num" data-target="4.7" data-decimal="1">0</div><div class="stat-label">Google rating</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="890">0</div><div class="stat-label">Members trained</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="5">0</div><div class="stat-label">Years in Indiranagar</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="12">0</div><div class="stat-label">Certified coaches</div></div>
+  </div>
+</section>
+
+<!-- ===================== GOAL QUIZ ===================== -->
+<section class="section reveal" id="quiz-sec">
+  <div class="wrap">
+    <div class="section-label">2-minute fitness check</div>
+    <h2>Find the right plan before you book.</h2>
+    <div class="quiz">
+      <div class="quiz-progress"><span><i id="qp1"></i></span><span><i id="qp2"></i></span><span><i id="qp3"></i></span></div>
+
+      <div class="quiz-step active" id="q-step-1">
+        <div class="quiz-q">What's your main goal?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="selectOpt(this,1)">Lose weight</button>
+          <button class="quiz-opt" onclick="selectOpt(this,1)">Build muscle</button>
+          <button class="quiz-opt" onclick="selectOpt(this,1)">General fitness</button>
+          <button class="quiz-opt" onclick="selectOpt(this,1)">Sport-specific training</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="q-step-2">
+        <div class="quiz-q">How would you describe your experience?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="selectOpt(this,2)">Just starting out</button>
+          <button class="quiz-opt" onclick="selectOpt(this,2)">Some experience</button>
+          <button class="quiz-opt" onclick="selectOpt(this,2)">Regular gym-goer</button>
+          <button class="quiz-opt" onclick="selectOpt(this,2)">Advanced / athlete</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="q-step-3">
+        <div class="quiz-q">Best time for you to train?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="selectOpt(this,3)">Early morning</button>
+          <button class="quiz-opt" onclick="selectOpt(this,3)">Afternoon</button>
+          <button class="quiz-opt" onclick="selectOpt(this,3)">Evening</button>
+          <button class="quiz-opt" onclick="selectOpt(this,3)">Flexible</button>
+        </div>
+      </div>
+
+      <div class="quiz-step" id="q-step-result">
+        <div class="quiz-result">
+          <div class="badge">Your plan is ready</div>
+          <h3>Strength &amp; conditioning track</h3>
+          <p>Based on your answers, most members like you see results with 3 sessions/week combining strength training with conditioning circuits. Let's get you a free trial session to try it.</p>
+          <div class="field" style="max-width:320px;margin:0 auto 14px;text-align:left;"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+          <button class="btn-primary">Book my free trial</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CLASS SCHEDULE ===================== -->
+<section class="section reveal" id="classes-sec">
+  <div class="wrap">
+    <div class="section-label">Today's schedule</div>
+    <h2>Live class capacity — book before it fills.</h2>
+    <div class="class-grid" id="class-grid">
+      <div class="class-card">
+        <div class="class-name">HIIT Circuit</div>
+        <div class="class-time">7:00 AM · 45 min</div>
+        <div class="capacity-bar"><i data-pct="90" style="background:var(--red)"></i></div>
+        <div class="capacity-label"><span>18/20 spots</span><span class="tag">Filling fast</span></div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Strength Foundations</div>
+        <div class="class-time">8:00 AM · 60 min</div>
+        <div class="capacity-bar"><i data-pct="55" style="background:var(--lime)"></i></div>
+        <div class="capacity-label"><span>11/20 spots</span><span></span></div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Power Yoga</div>
+        <div class="class-time">6:00 PM · 50 min</div>
+        <div class="capacity-bar"><i data-pct="70" style="background:var(--lime)"></i></div>
+        <div class="capacity-label"><span>14/20 spots</span><span></span></div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Zumba</div>
+        <div class="class-time">7:15 PM · 45 min</div>
+        <div class="capacity-bar"><i data-pct="95" style="background:var(--red)"></i></div>
+        <div class="capacity-label"><span>19/20 spots</span><span class="tag">Filling fast</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== GALLERY ===================== -->
+<section class="section reveal" id="gallery-sec">
+  <div class="wrap">
+    <div class="section-label">Take a look inside</div>
+    <h2>The floor, the coaches, the people showing up.</h2>
+    <div class="gallery">
+      <div class="g-main">
+        <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=1200&auto=format&fit=crop" alt="Gym floor">
+        <div class="cap">Training floor</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&auto=format&fit=crop" alt="Weight training">
+        <div class="cap">Strength zone</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?q=80&w=800&auto=format&fit=crop" alt="Group class">
+        <div class="cap">Group classes</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800&auto=format&fit=crop" alt="Coach training">
+        <div class="cap">Our coaches</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800&auto=format&fit=crop" alt="Cardio zone">
+        <div class="cap">Cardio zone</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== REVIEWS ===================== -->
+<section class="section reveal" id="reviews-sec">
+  <div class="wrap">
+    <div class="section-label">From members on Google</div>
+    <h2>What people say after their first month.</h2>
+    <div class="carousel">
+      <div class="carousel-track">
+        <div class="carousel-slides" id="carousel-slides">
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"First gym where a coach actually corrected my form instead of just counting reps."</div>
+            <div class="review-name">Arjun N. · 3 weeks ago</div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"Booked the trial over WhatsApp, showed up, never left. Down 6kg in 10 weeks."</div>
+            <div class="review-name">Pooja R. · 1 month ago</div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"Classes actually fill up, which tells you something. Book early or you'll miss it."</div>
+            <div class="review-name">Karthik S. · 2 months ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OFFER ===================== -->
+<section class="section reveal" id="offer">
+  <div class="wrap">
+    <div class="section-label">First-time offer</div>
+    <h2>7 days free. No commitment.</h2>
+    <div class="offer">
+      <div>
+        <h3>Reserve your trial</h3>
+        <p>Leave your details and our team will confirm your first session on WhatsApp — usually within an hour.</p>
+        <div class="field"><label>Your name</label><input type="text" placeholder="Rahul Verma"></div>
+        <div class="field"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+        <div class="field">
+          <label>Preferred class type</label>
+          <select><option>Strength</option><option>HIIT</option><option>Yoga</option><option>Not sure yet</option></select>
+        </div>
+        <button class="btn-primary" style="width:100%;">Claim my free week</button>
+      </div>
+      <div class="offer-badge">
+        <div class="amount">7 days</div>
+        <div class="label">Free trial, new members only</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Ironclad Fitness Studio · Indiranagar, Bangalore · +91 99001 12233</div>
+</footer>
+
+<!-- ===================== FLOATING WHATSAPP ===================== -->
+<button class="float-wa" onclick="window.open('https://wa.me/919900112233','_blank')" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7-1.87-1.87-4.36-2.94-7-2.94zm0 18.1c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.15 8.15 0 0 1-1.25-4.34c0-4.5 3.66-8.16 8.16-8.16 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.78c0 4.5-3.67 8.16-8.16 8.16z"/></svg>
+</button>
+
+<!-- ===================== LEAD CAPTURE POPUP ===================== -->
+<div class="popup-backdrop" id="popup">
+  <div class="popup-card">
+    <button class="popup-close" id="popup-close" aria-label="Close">×</button>
+    <div class="popup-eyebrow">Before you go</div>
+    <h3>Hold your free trial slot.</h3>
+    <p>We'll hold a slot for 24 hours — no payment needed now.</p>
+    <div class="field"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+    <button class="btn-primary" style="width:100%;">Hold my slot</button>
+  </div>
+</div>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); });
+
+  const hero = document.getElementById('hero');
+  window.addEventListener('load', () => hero.classList.add('loaded'));
+  const headline = "Train like it matters.";
+  const h1 = document.getElementById('hero-h1');
+  headline.split(' ').forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.style.animationDelay = (i * 0.06) + 's';
+    span.textContent = w + ' ';
+    h1.appendChild(span);
+  });
+
+  const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        if (e.target.id === 'stats-row') animateCounters();
+        if (e.target.id === 'classes-sec') animateCapacity();
+      }
+    });
+  }, {threshold:0.25});
+  revealEls.forEach(el => io.observe(el));
+
+  let countersDone = false;
+  function animateCounters(){
+    if (countersDone) return;
+    countersDone = true;
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseFloat(el.dataset.target);
+      const decimal = parseInt(el.dataset.decimal || '0');
+      const dur = 1200;
+      const start = performance.now();
+      function tick(now){
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = target * eased;
+        el.textContent = decimal ? val.toFixed(decimal) : Math.round(val);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  let capacityDone = false;
+  function animateCapacity(){
+    if (capacityDone) return;
+    capacityDone = true;
+    document.querySelectorAll('.capacity-bar i').forEach((bar,i) => {
+      const pct = parseFloat(bar.dataset.pct);
+      setTimeout(() => { bar.style.transform = `scaleX(${pct/100})`; }, i*120);
+    });
+  }
+
+  // quiz logic
+  let quizAnswers = {};
+  function selectOpt(btn, step){
+    const parent = btn.parentElement;
+    [...parent.children].forEach(c => c.classList.remove('selected'));
+    btn.classList.add('selected');
+    quizAnswers[step] = btn.textContent;
+    document.getElementById('qp'+step).style.width = '100%';
+    setTimeout(() => {
+      document.getElementById('q-step-'+step).classList.remove('active');
+      if (step < 3){
+        document.getElementById('q-step-'+(step+1)).classList.add('active');
+      } else {
+        document.getElementById('q-step-result').classList.add('active');
+      }
+    }, 350);
+  }
+
+  // class capacity live nudge — feels alive
+  setInterval(() => {
+    const bars = document.querySelectorAll('.capacity-bar i');
+    const randomBar = bars[Math.floor(Math.random()*bars.length)];
+    let pct = parseFloat(randomBar.dataset.pct);
+    if (pct < 98) {
+      pct += 1;
+      randomBar.dataset.pct = pct;
+      randomBar.style.transform = `scaleX(${pct/100})`;
+    }
+  }, 4000);
+
+  const slidesWrap = document.getElementById('carousel-slides');
+  const slideCount = slidesWrap.children.length;
+  const dotsWrap = document.getElementById('carousel-dots');
+  let current = 0;
+  for (let i=0;i<slideCount;i++){
+    const b = document.createElement('button');
+    if (i===0) b.classList.add('active');
+    b.onclick = () => goTo(i);
+    dotsWrap.appendChild(b);
+  }
+  function goTo(i){
+    current = i;
+    slidesWrap.style.transform = `translateX(-${i*100}%)`;
+    [...dotsWrap.children].forEach((d,idx)=>d.classList.toggle('active', idx===i));
+  }
+  setInterval(()=>{ goTo((current+1)%slideCount); }, 4500);
+
+  const liveMessages = [
+    "17 people checked in today",
+    "3 spots left in tonight's HIIT class",
+    "2 people just booked a free trial"
+  ];
+  let liveIdx = 0;
+  setInterval(()=>{
+    liveIdx = (liveIdx+1)%liveMessages.length;
+    document.getElementById('live-text').textContent = liveMessages[liveIdx];
+  }, 6000);
+
+  let popupShown = false;
+  const popup = document.getElementById('popup');
+  function maybeShowPopup(){
+    if (popupShown) return;
+    const scrolled = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+    if (scrolled > 0.55){
+      popup.classList.add('show');
+      popupShown = true;
+    }
+  }
+  window.addEventListener('scroll', maybeShowPopup);
+  document.getElementById('popup-close').onclick = () => popup.classList.remove('show');
+  popup.addEventListener('click', (e) => { if (e.target === popup) popup.classList.remove('show'); });
+</script>
+
+</body>
+</html>

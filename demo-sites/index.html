@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowGridLabs — Turn your Google listing into a lead machine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F7F7FB;
+            --panel: #FFFFFF;
+            --ink: #171A2B;
+            --ink-soft: #6B6F87;
+            --indigo: #4B4FDB;
+            --indigo-deep: #3638A8;
+            --indigo-light: #ECEBFC;
+            --lime: #8FD14F;
+            --coral: #E9694A;
+            --line: #E7E7F0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        button {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .reveal.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-stagger>* {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        .reveal-stagger.in>* {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-stagger.in>*:nth-child(1) {
+            transition-delay: .05s;
+        }
+
+        .reveal-stagger.in>*:nth-child(2) {
+            transition-delay: .13s;
+        }
+
+        .reveal-stagger.in>*:nth-child(3) {
+            transition-delay: .21s;
+        }
+
+        .reveal-stagger.in>*:nth-child(4) {
+            transition-delay: .29s;
+        }
+
+        .reveal-stagger.in>*:nth-child(5) {
+            transition-delay: .37s;
+        }
+
+        .reveal-stagger.in>*:nth-child(6) {
+            transition-delay: .45s;
+        }
+
+        /* grid texture */
+        .grid-bg {
+            background-image:
+                linear-gradient(var(--line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 42px 42px;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 18px 0;
+            transition: background .3s ease, box-shadow .3s ease, padding .3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(247, 247, 251, 0.92);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 1px 0 var(--line);
+            padding: 12px 0;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand .mark {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--indigo), var(--lime));
+            display: inline-block;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-size: 14px;
+            color: var(--ink-soft);
+        }
+
+        .nav-links a:hover {
+            color: var(--ink);
+        }
+
+        .nav-cta {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* hero */
+        .hero {
+            position: relative;
+            padding: 150px 0 90px;
+            overflow: hidden;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--indigo-light);
+            color: var(--indigo-deep);
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 12.5px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .hero-eyebrow .d {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--lime);
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: clamp(34px, 5.5vw, 58px);
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            max-width: 760px;
+        }
+
+        h1 .accent {
+            color: var(--indigo);
+        }
+
+        .hero-sub {
+            margin-top: 20px;
+            font-size: 17.5px;
+            color: var(--ink-soft);
+            max-width: 560px;
+        }
+
+        .cta-row {
+            margin-top: 34px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--indigo);
+            color: #fff;
+            border: none;
+            padding: 15px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background .2s, transform .2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--indigo-deep);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            padding: 15px 24px;
+            border-radius: 999px;
+            font-size: 14.5px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* animated flow network */
+        .flow-canvas {
+            position: absolute;
+            top: 0;
+            right: -60px;
+            width: 520px;
+            height: 420px;
+            z-index: 0;
+            opacity: .9;
+            pointer-events: none;
+        }
+
+        @media (max-width:900px) {
+            .flow-canvas {
+                display: none;
+            }
+        }
+
+        /* how it works */
+        .section {
+            padding: 70px 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--indigo);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 30px;
+            margin-bottom: 36px;
+            max-width: 560px;
+            letter-spacing: -0.01em;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .step-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 26px;
+            position: relative;
+        }
+
+        .step-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--indigo);
+            margin-bottom: 14px;
+        }
+
+        .step-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 13.5px;
+            color: var(--ink-soft);
+        }
+
+        .step-arrow {
+            display: none;
+        }
+
+        @media (min-width:761px) {
+            .step-card:not(:last-child)::after {
+                content: "→";
+                position: absolute;
+                right: -26px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--line);
+                font-size: 20px;
+            }
+        }
+
+        /* demo gallery */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .demo-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform .25s ease, box-shadow .25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 34px rgba(23, 26, 43, 0.08);
+        }
+
+        .demo-swatch {
+            height: 110px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 14px;
+        }
+
+        .demo-swatch .tag {
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--ink);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .demo-body {
+            padding: 18px 20px 22px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 16.5px;
+            margin-bottom: 6px;
+        }
+
+        .demo-desc {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin-bottom: 16px;
+            flex: 1;
+        }
+
+        .demo-link {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--indigo);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .demo-link .arrow {
+            transition: transform .2s;
+        }
+
+        .demo-card:hover .arrow {
+            transform: translateX(3px);
+        }
+
+        .swatch-clinic {
+            background: linear-gradient(135deg, #0F6E56, #085041);
+        }
+
+        .swatch-salon {
+            background: linear-gradient(135deg, #B5405A, #7D2A3E);
+        }
+
+        .swatch-groomer {
+            background: linear-gradient(135deg, #D97B2A, #A25A1B);
+        }
+
+        .swatch-gym {
+            background: linear-gradient(135deg, #2A2E28, #111311);
+        }
+
+        .swatch-restaurant {
+            background: linear-gradient(135deg, #B5502E, #7E3820);
+        }
+
+        .swatch-crm {
+            background: linear-gradient(135deg, #4B4FDB, #3638A8);
+        }
+
+        /* why us */
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .why-card {
+            padding: 6px 0;
+        }
+
+        .why-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--indigo-light);
+            color: var(--indigo-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 14px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .why-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .why-desc {
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
+
+        /* about */
+        .about-box {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 36px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .about-box h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .about-box p {
+            font-size: 14.5px;
+            color: var(--ink-soft);
+        }
+
+        .about-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .about-stat {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 12px;
+            font-size: 13.5px;
+        }
+
+        .about-stat b {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--indigo-deep);
+        }
+
+        /* footer CTA */
+        .cta-final {
+            background: var(--ink);
+            color: #fff;
+            border-radius: 20px;
+            padding: 56px 40px;
+            text-align: center;
+            margin: 70px 0;
+        }
+
+        .cta-final h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 30px;
+            margin-bottom: 14px;
+            color: #fff;
+        }
+
+        .cta-final p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+
+        .cta-final .btn-primary {
+            background: var(--lime);
+            color: var(--ink);
+        }
+
+        .cta-final .btn-primary:hover {
+            background: #7DBE3F;
+        }
+
+        footer {
+            padding: 32px 0;
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--ink-soft);
+            border-top: 1px solid var(--line);
+        }
+
+        /* chat assistant */
+        .chat-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 150;
+            background: var(--indigo);
+            color: #fff;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(75, 79, 219, 0.4);
+            cursor: pointer;
+            border: none;
+            transition: transform .2s;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.06);
+        }
+
+        .chat-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+
+        .chat-panel {
+            position: fixed;
+            bottom: 94px;
+            right: 24px;
+            z-index: 150;
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(23, 26, 43, 0.18);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(16px) scale(.97);
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+            overflow: hidden;
+        }
+
+        .chat-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .chat-head {
+            background: var(--indigo);
+            color: #fff;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-head .av {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .chat-head-text {
+            font-size: 13.5px;
+        }
+
+        .chat-head-text b {
+            display: block;
+            font-size: 14px;
+        }
+
+        .chat-head-text span {
+            opacity: .8;
+            font-size: 11.5px;
+        }
+
+        .chat-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 340px;
+            overflow-y: auto;
+            background: #FBFBFD;
+        }
+
+        .chat-bubble {
+            max-width: 82%;
+            padding: 10px 13px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            opacity: 0;
+            transform: translateY(6px);
+            animation: bIn .3s ease forwards;
+        }
+
+        @keyframes bIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-bubble.bot {
+            background: #fff;
+            border: 1px solid var(--line);
+            align-self: flex-start;
+            border-bottom-left-radius: 3px;
+        }
+
+        .chat-bubble.user {
+            background: var(--indigo);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+        }
+
+        .chat-typing {
+            align-self: flex-start;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            border-bottom-left-radius: 3px;
+            padding: 10px 14px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .chat-typing span {
+            width: 5px;
+            height: 5px;
+            background: var(--ink-soft);
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+
+        .chat-typing span:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .chat-typing span:nth-child(3) {
+            animation-delay: .3s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .chat-quick {
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chat-quick button {
+            background: var(--indigo-light);
+            color: var(--indigo-deep);
+            border: none;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .chat-quick button:hover {
+            background: #DEDCFA;
+        }
+
+        @media (max-width:900px) {
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .step-card:not(:last-child)::after {
+                display: none;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .why-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .about-box {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width:560px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .why-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav id="nav">
+        <div class="wrap nav-row">
+            <div class="brand"><span class="mark"></span>FlowGridLabs</div>
+            <div class="nav-links">
+                <a href="#work">Work</a>
+                <a href="#why">Why us</a>
+                <a href="#about">About</a>
+            </div>
+            <button class="nav-cta"
+                onclick="document.getElementById('cta-final').scrollIntoView({behavior:'smooth'})">Get started</button>
+        </div>
+    </nav>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero grid-bg">
+        <svg class="flow-canvas" viewBox="0 0 520 420">
+            <g id="flow-lines" stroke="#4B4FDB" stroke-width="1.5" fill="none" opacity="0.35"></g>
+            <g id="flow-dots"></g>
+        </svg>
+        <div class="wrap">
+            <div class="hero-eyebrow"><span class="d"></span>Now building for clinics, salons, gyms &amp; more</div>
+            <h1>Your Google listing is already a lead machine. <span class="accent">You just can't see it yet.</span>
+            </h1>
+            <p class="hero-sub">FlowGridLabs turns any Google Business listing into a live, mobile-first website with a
+                booking flow, a lightweight CRM, and WhatsApp-native AI automations — built fast, launched fast.</p>
+            <div class="cta-row">
+                <button class="btn-primary"
+                    onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">See live
+                    demos</button>
+                <button class="btn-outline" onclick="document.getElementById('chat-toggle').click()">Ask us
+                    anything</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== HOW IT WORKS ===================== -->
+    <section class="section reveal">
+        <div class="wrap">
+            <div class="section-label">How it works</div>
+            <h2>From listing to booked appointment — one flow.</h2>
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-title">We find you on Google</div>
+                    <div class="step-desc">Your name, reviews, hours, and photos — pulled straight from your existing
+                        listing. No new setup on your end.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-title">We build your site</div>
+                    <div class="step-desc">A fast, mobile-first booking page built around your real data — live in days,
+                        not months.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <div class="step-title">AI handles the rest</div>
+                    <div class="step-desc">New leads get an instant WhatsApp reply, bookings get confirmed, no-shows get
+                        followed up — automatically.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== WORK / DEMOS ===================== -->
+    <section class="section reveal" id="work">
+        <div class="wrap">
+            <div class="section-label">Our work</div>
+            <h2>Live demos, real interactions — pick your industry.</h2>
+            <div class="demo-grid">
+                <a class="demo-card" href="clinic/">
+                    <div class="demo-swatch swatch-clinic"><span class="tag">Clinic</span></div>
+                    <div class="demo-body">
+                        <div class="demo-name">Meridian Dental Co.</div>
+                        <div class="demo-desc">Trust-first design, new-patient offer, live booking flow.</div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <a class="demo-card" href="salon/">
+                    <div class="demo-swatch swatch-salon"><span class="tag">Salon</span></div>
+                    <div class="demo-body">
+                        <div class="demo-name">Aura Beauty Lounge</div>
+                        <div class="demo-desc">Service menu, review carousel, first-visit discount capture.</div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <a class="demo-card" href="groomer/">
+                    <div class="demo-swatch swatch-groomer"><span class="tag">Pet grooming</span></div>
+                    <div class="demo-body">
+                        <div class="demo-name">Fluff &amp; Co.</div>
+                        <div class="demo-desc">Draggable before/after slider — visual proof that sells itself.</div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <a class="demo-card" href="gym/">
+                    <div class="demo-swatch swatch-gym"><span class="tag">Fitness studio</span></div>
+                    <div class="demo-body">
+                        <div class="demo-name">Ironclad Fitness</div>
+                        <div class="demo-desc">Goal-finder quiz and a live class-capacity board.</div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <a class="demo-card" href="restaurant/">
+                    <div class="demo-swatch swatch-restaurant"><span class="tag">Restaurant</span></div>
+                    <div class="demo-body">
+                        <div class="demo-name">Copper &amp; Clove</div>
+                        <div class="demo-desc">Real table reservation widget with live time slots.</div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                    </div>
+                </a>
+                <a class="demo-card" href="crm-dashboard/">
+                    <div class="demo-swatch swatch-crm"><span class="tag">Behind the scenes</span></div>
+                    <div class="demo-body">
+                        <div class="demo-name">LeadLoop CRM</div>
+                        <div class="demo-desc">The dashboard, pipeline, and AI assistant running behind every site.
+                        </div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== WHY US ===================== -->
+    <section class="section reveal" id="why">
+        <div class="wrap">
+            <div class="section-label">Why FlowGridLabs</div>
+            <h2>Built for how Indian local businesses actually get discovered.</h2>
+            <div class="why-grid reveal-stagger" id="why-grid">
+                <div class="why-card">
+                    <div class="why-icon">G</div>
+                    <div class="why-title">Built from your real listing</div>
+                    <div class="why-desc">No content to write, no photos to source — we start from what's already on
+                        Google.</div>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">W</div>
+                    <div class="why-title">WhatsApp-native</div>
+                    <div class="why-desc">Every CTA goes where your customers already are, not a contact form nobody
+                        checks.</div>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">A</div>
+                    <div class="why-title">AI that actually books</div>
+                    <div class="why-desc">Reads replies, checks availability, and confirms appointments — not just an
+                        auto-reply.</div>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">F</div>
+                    <div class="why-title">Live in days</div>
+                    <div class="why-desc">Mobile-first by default, fast on real Indian networks, not just on a demo
+                        Wi-Fi.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="section reveal" id="about">
+        <div class="wrap">
+            <div class="section-label">About us</div>
+            <h2>A small, systems-first team building the layer local businesses are missing.</h2>
+            <div class="about-box">
+                <div>
+                    <h3>FlowGridLabs</h3>
+                    <p>We build the missing link between a business's Google presence and an actual booked customer — a
+                        fast website, a lightweight CRM, and AI automations that handle the busywork in between. Every
+                        demo on this page is real, working software, not a mockup.</p>
+                </div>
+                <div class="about-stats">
+                    <div class="about-stat"><span>Industries covered</span><b>5+ and growing</b></div>
+                    <div class="about-stat"><span>Time to launch</span><b>Days, not months</b></div>
+                    <div class="about-stat"><span>Built for</span><b>Mobile-first, WhatsApp-first India</b></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FINAL CTA ===================== -->
+    <section class="wrap">
+        <div class="cta-final" id="cta-final">
+            <h2>Like what you see?</h2>
+            <p>Tell us about your business and we'll build you something just as real — not a template, an actual
+                working site.</p>
+            <button class="btn-primary"
+                onclick="window.open('https://wa.me/919800000000?text=Hi%20FlowGridLabs%2C%20I%27d%20like%20to%20get%20a%20site%20built','_blank')">WhatsApp
+                us to get started</button>
+        </div>
+    </section>
+
+    <footer>
+        <div class="wrap">FlowGridLabs · Built for local businesses across India</div>
+    </footer>
+
+    <!-- ===================== CHAT ASSISTANT ===================== -->
+    <button class="chat-toggle" id="chat-toggle" aria-label="Open chat assistant">
+        <svg viewBox="0 0 24 24">
+            <path
+                d="M12 2C6.48 2 2 6.02 2 11c0 2.7 1.32 5.12 3.4 6.78L4.5 22l4.53-1.7c.94.28 1.94.44 2.97.44 5.52 0 10-4.02 10-9s-4.48-9.74-10-9.74z" />
+        </svg>
+    </button>
+    <div class="chat-panel" id="chat-panel">
+        <div class="chat-head">
+            <div class="av">FG</div>
+            <div class="chat-head-text"><b>FlowGridLabs Assistant</b><span>Usually replies instantly</span></div>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="chat-bubble bot">Hey! 👋 I can answer quick questions about how FlowGridLabs works — or point
+                you to the right demo. What would you like to know?</div>
+        </div>
+        <div class="chat-quick" id="chat-quick"></div>
+    </div>
+
+    <script>
+        // nav scroll
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); });
+
+        // reveal on scroll
+        const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+        }, { threshold: 0.2 });
+        revealEls.forEach(el => io.observe(el));
+
+        // animated flow network in hero
+        const svgLines = document.getElementById('flow-lines');
+        const svgDots = document.getElementById('flow-dots');
+        const nodes = [[40, 60], [180, 30], [320, 80], [460, 40], [90, 180], [250, 150], [400, 200], [150, 300], [330, 320], [460, 280]];
+        const edges = [[0, 1], [1, 2], [2, 3], [0, 4], [1, 5], [2, 6], [3, 6], [4, 5], [5, 6], [4, 7], [5, 8], [6, 9], [7, 8], [8, 9]];
+        edges.forEach(([a, b]) => {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", nodes[a][0]); line.setAttribute("y1", nodes[a][1]);
+            line.setAttribute("x2", nodes[b][0]); line.setAttribute("y2", nodes[b][1]);
+            svgLines.appendChild(line);
+        });
+        nodes.forEach(([x, y], i) => {
+            const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", i % 3 === 0 ? 4 : 2.5);
+            c.setAttribute("fill", i % 3 === 0 ? "#8FD14F" : "#4B4FDB");
+            svgDots.appendChild(c);
+        });
+        // traveling pulses along edges
+        edges.forEach(([a, b], i) => {
+            const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            dot.setAttribute("r", "2.5"); dot.setAttribute("fill", "#8FD14F");
+            svgDots.appendChild(dot);
+            let t = Math.random();
+            const speed = 0.002 + Math.random() * 0.002;
+            function animatePulse() {
+                t += speed;
+                if (t > 1) t = 0;
+                const x = nodes[a][0] + (nodes[b][0] - nodes[a][0]) * t;
+                const y = nodes[a][1] + (nodes[b][1] - nodes[a][1]) * t;
+                dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+                requestAnimationFrame(animatePulse);
+            }
+            setTimeout(() => requestAnimationFrame(animatePulse), i * 80);
+        });
+
+        // chat assistant
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatPanel = document.getElementById('chat-panel');
+        const chatBody = document.getElementById('chat-body');
+        const chatQuick = document.getElementById('chat-quick');
+        let chatOpen = false;
+
+        const faq = {
+            "How much does it cost?": "Pricing depends on your business and what you need automated — but every build includes the site, CRM, and core WhatsApp automations. Want us to send you a quote on WhatsApp?",
+            "How fast can you build my site?": "Most sites go live in a matter of days since we start from your existing Google listing — no content or photos needed from you upfront.",
+            "Can I see more examples?": "You're looking at them! Scroll up to the demo grid — clinic, salon, pet grooming, gym, and restaurant are all live, working examples. More industries are coming soon.",
+            "Do I need any technical skill?": "None at all. We handle the build, hosting, and automations — you just approve the content and start getting bookings.",
+            "Is my data safe?": "Yes — we only use publicly available Google listing data to build your demo, and any customer data collected afterward stays in your own CRM."
+        };
+        const quickQuestions = Object.keys(faq);
+
+        function renderQuick() {
+            chatQuick.innerHTML = '';
+            quickQuestions.forEach(q => {
+                const b = document.createElement('button');
+                b.textContent = q;
+                b.onclick = () => askQuestion(q);
+                chatQuick.appendChild(b);
+            });
+        }
+        renderQuick();
+
+        function addBubble(text, cls) {
+            const b = document.createElement('div');
+            b.className = 'chat-bubble ' + cls;
+            b.textContent = text;
+            chatBody.appendChild(b);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function askQuestion(q) {
+            addBubble(q, 'user');
+            const typing = document.createElement('div');
+            typing.className = 'chat-typing';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            chatBody.appendChild(typing);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            setTimeout(() => {
+                typing.remove();
+                addBubble(faq[q] || "Good question — I'll get our team to answer that directly. Want to ask on WhatsApp instead?", 'bot');
+            }, 900);
+        }
+
+        chatToggle.addEventListener('click', () => {
+            chatOpen = !chatOpen;
+            chatPanel.classList.toggle('open', chatOpen);
+        });
+    </script>
+
+</body>
+
+</html>
