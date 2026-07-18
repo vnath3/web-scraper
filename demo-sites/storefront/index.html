@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shree Krishna Sweets &amp; Namkeen — Order online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6EC; --panel:#FFFFFF; --ink:#2B2013; --ink-soft:#8A7A63;
+    --maroon:#8C2F39; --maroon-deep:#6B2029; --maroon-light:#F5E1E3;
+    --mustard:#D9A431; --mustard-deep:#B48220; --line:#EFE2C9;
+    --teal:#1C8C74; --teal-light:#E1F2EC;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;}
+  a{color:inherit;}
+  img{display:block;width:100%;height:100%;object-fit:cover;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px;}
+  button{font-family:'Inter',sans-serif;}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  .banner{background:var(--maroon-light);color:var(--maroon-deep);font-size:12.5px;text-align:center;padding:8px;font-weight:500;}
+
+  header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;}
+  .hero-cover{height:150px;position:relative;overflow:hidden;}
+  .hero-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,10,8,0.55),rgba(20,10,8,0.05));}
+  .header-content{padding:0 0 14px;}
+  .header-row{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-top:-38px;position:relative;z-index:2;}
+  .shop-id{display:flex;align-items:flex-end;gap:14px;}
+  .shop-logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,var(--maroon),var(--maroon-deep));display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:24px;border:4px solid var(--panel);box-shadow:0 4px 14px rgba(0,0,0,0.15);}
+  .shop-text{padding-bottom:6px;}
+  .shop-name{font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;}
+  .shop-meta{font-size:12.5px;color:var(--ink-soft);display:flex;gap:10px;flex-wrap:wrap;margin-top:3px;}
+  .shop-meta .rating{color:var(--mustard-deep);font-weight:600;}
+  .view-toggle{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;font-size:12.5px;margin-bottom:8px;}
+  .view-toggle button{border:none;background:none;padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--ink-soft);font-weight:500;}
+  .view-toggle button.active{background:var(--maroon);color:#fff;}
+
+  .live-strip{background:var(--teal-light);color:var(--teal);font-size:12px;font-weight:600;padding:8px 0;text-align:center;}
+  .live-strip .d{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-right:6px;animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(28,140,116,.5);}70%{box-shadow:0 0 0 6px rgba(28,140,116,0);}100%{box-shadow:0 0 0 0 rgba(28,140,116,0);}}
+
+  main{padding:20px 0 100px;}
+
+  /* category tabs */
+  .cat-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;}
+  .cat-tab{padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,border-color .2s;}
+  .cat-tab.active{background:var(--maroon);color:#fff;border-color:var(--maroon);}
+
+  h1{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px;}
+
+  /* ---------- product grid ---------- */
+  .product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .product-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease;position:relative;}
+  .product-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(140,47,57,0.1);}
+  .product-img{height:120px;position:relative;}
+  .bestseller-badge{position:absolute;top:8px;left:8px;background:var(--mustard);color:var(--ink);font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.02em;z-index:2;}
+  .product-body{padding:12px 14px 14px;}
+  .product-name{font-size:13.5px;font-weight:600;margin-bottom:3px;}
+  .product-rating{font-size:11px;color:var(--mustard-deep);margin-bottom:6px;}
+  .product-price{font-size:13px;color:var(--maroon-deep);font-weight:700;margin-bottom:10px;}
+  .product-off{font-size:10.5px;color:var(--ink-soft);font-style:italic;font-weight:400;}
+  .qty-row{display:flex;align-items:center;justify-content:flex-end;}
+  .stepper{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:999px;padding:4px 8px;}
+  .stepper button{width:22px;height:22px;border-radius:50%;border:none;background:var(--maroon);color:#fff;font-size:13px;cursor:pointer;}
+  .stepper span{font-size:12.5px;font-weight:600;min-width:14px;text-align:center;}
+  .add-btn{background:var(--maroon);color:#fff;border:none;padding:8px 16px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;width:100%;}
+
+  /* floating cart bar */
+  .cart-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(120px);width:calc(100% - 40px);max-width:460px;background:var(--ink);color:#fff;border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 12px 30px rgba(0,0,0,0.25);z-index:60;transition:transform .3s ease;}
+  .cart-bar.show{transform:translateX(-50%) translateY(0);}
+  .cart-bar .info{font-size:13.5px;}
+  .cart-bar .info b{display:block;font-size:15px;font-family:'Poppins',sans-serif;}
+  .cart-bar button{background:var(--mustard);color:var(--ink);border:none;padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:700;cursor:pointer;}
+
+  /* modal (cart + checkout + confirmation) */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(30,20,10,0.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+  .modal-backdrop.show{opacity:1;pointer-events:auto;}
+  .modal-sheet{background:var(--panel);border-radius:20px 20px 0 0;width:100%;max-width:460px;max-height:85vh;overflow-y:auto;padding:24px;transform:translateY(30px);transition:transform .3s ease;}
+  .modal-backdrop.show .modal-sheet{transform:translateY(0);}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .modal-head h3{font-family:'Poppins',sans-serif;font-size:18px;}
+  .modal-close{background:none;border:none;font-size:20px;color:var(--ink-soft);cursor:pointer;}
+
+  .cart-line{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .cart-thumb{width:44px;height:44px;border-radius:8px;flex-shrink:0;}
+  .cart-line .meta{flex:1;}
+  .cart-line .name{font-size:13.5px;font-weight:600;}
+  .cart-line .sub{font-size:11.5px;color:var(--ink-soft);}
+  .cart-total-row{display:flex;justify-content:space-between;padding:16px 0;font-weight:700;font-size:15px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:var(--bg);}
+  .btn-primary{background:var(--maroon);color:#fff;border:none;padding:14px;border-radius:10px;font-size:14.5px;font-weight:700;cursor:pointer;width:100%;}
+
+  /* confirmation + SMS simulation */
+  .confirm-wrap{text-align:center;padding:10px 0 6px;}
+  .confirm-check{width:56px;height:56px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;}
+  .confirm-wrap h3{font-family:'Poppins',sans-serif;font-size:18px;margin-bottom:6px;}
+  .confirm-wrap p{font-size:13.5px;color:var(--ink-soft);margin-bottom:20px;}
+  .phone-mock{background:#F2ECDF;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;}
+  .phone-mock .phone-label{font-size:11px;color:var(--ink-soft);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
+  .sms-bubble{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.5px;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease;}
+  .sms-bubble.show{opacity:1;transform:translateY(0);}
+  .sms-bubble .from{font-weight:700;color:var(--maroon-deep);margin-bottom:4px;}
+  .sms-typing{display:flex;gap:4px;padding:10px 0;}
+  .sms-typing span{width:5px;height:5px;background:var(--ink-soft);border-radius:50%;animation:bounce 1s infinite;}
+  .sms-typing span:nth-child(2){animation-delay:.15s;}
+  .sms-typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-3px);}}
+  .order-track{display:flex;justify-content:space-between;margin-top:18px;position:relative;}
+  .order-track::before{content:"";position:absolute;top:9px;left:8%;right:8%;height:2px;background:var(--line);z-index:0;}
+  .track-step{position:relative;z-index:1;text-align:center;flex:1;}
+  .track-dot{width:20px;height:20px;border-radius:50%;background:var(--line);margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;}
+  .track-dot.done{background:var(--teal);}
+  .track-label{font-size:10px;color:var(--ink-soft);}
+
+  /* ---------- owner view ---------- */
+  #owner-view{display:none;}
+  .owner-note{background:var(--mustard);color:var(--ink);font-size:12.5px;padding:10px 14px;border-radius:10px;margin-bottom:20px;font-weight:500;}
+  .owner-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:10px;}
+  .owner-thumb{width:48px;height:48px;border-radius:8px;flex-shrink:0;}
+  .owner-info{flex:1;}
+  .owner-info .n{font-size:13.5px;font-weight:600;}
+  .owner-info .p{font-size:12px;color:var(--ink-soft);}
+  .owner-toggle{position:relative;width:38px;height:21px;flex-shrink:0;}
+  .owner-toggle input{opacity:0;width:0;height:0;}
+  .ot-slider{position:absolute;inset:0;background:var(--line);border-radius:999px;cursor:pointer;transition:background .2s;}
+  .ot-slider:before{content:"";position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;}
+  .owner-toggle input:checked + .ot-slider{background:var(--teal);}
+  .owner-toggle input:checked + .ot-slider:before{transform:translateX(17px);}
+  .add-product-card{background:var(--panel);border:2px dashed var(--line);border-radius:12px;padding:18px;margin-top:16px;}
+  .add-product-card h4{font-size:14px;font-weight:600;margin-bottom:14px;}
+  .add-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .photo-picker{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .photo-picker div{width:52px;height:52px;border-radius:8px;cursor:pointer;border:2px solid transparent;overflow:hidden;}
+  .photo-picker div.selected{border-color:var(--maroon);}
+  .photo-picker div img{width:100%;height:100%;object-fit:cover;}
+
+  @media (max-width:700px){
+    .product-grid{grid-template-columns:1fr 1fr;}
+    .add-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">Demo storefront — shows how a merchant's catalog goes live and how orders reach them</div>
+
+<header>
+  <div class="hero-cover">
+    <img src="https://images.unsplash.com/photo-1695568180842-1fcf31187dd6?q=80&w=1200&auto=format&fit=crop" alt="Assorted Indian sweets display">
+  </div>
+  <div class="wrap header-content">
+    <div class="header-row">
+      <div class="shop-id">
+        <div class="shop-logo">SK</div>
+        <div class="shop-text">
+          <div class="shop-name">Shree Krishna Sweets &amp; Namkeen</div>
+          <div class="shop-meta"><span class="rating">4.7 ★</span><span>Ahmedabad</span><span>Usually replies in minutes</span></div>
+        </div>
+      </div>
+      <div class="view-toggle">
+        <button class="active" onclick="setView('customer', this)">Customer view</button>
+        <button onclick="setView('owner', this)">Owner: Edit catalog</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="live-strip" id="live-strip"><span class="d"></span><span id="live-text">14 orders placed today</span></div>
+
+<main>
+  <!-- ===================== CUSTOMER VIEW ===================== -->
+  <div id="customer-view" class="wrap">
+    <h1 class="reveal" style="margin-top:20px;">Order sweets, namkeen &amp; gift boxes</h1>
+    <div class="cat-tabs reveal">
+      <div class="cat-tab active" onclick="setCategory('all', this)">All items</div>
+      <div class="cat-tab" onclick="setCategory('sweets', this)">Sweets</div>
+      <div class="cat-tab" onclick="setCategory('namkeen', this)">Namkeen</div>
+      <div class="cat-tab" onclick="setCategory('gift', this)">Gift boxes</div>
+    </div>
+    <div class="product-grid reveal" id="product-grid"></div>
+  </div>
+
+  <!-- ===================== OWNER VIEW ===================== -->
+  <div id="owner-view" class="wrap">
+    <div class="owner-note">This is what the shop owner sees — add a product with a real photo, name, and price, and it appears on the storefront instantly.</div>
+    <h1>Your products</h1>
+    <div id="owner-list"></div>
+    <div class="add-product-card">
+      <h4>+ Add a new product</h4>
+      <div class="add-grid">
+        <div class="field" style="margin-bottom:0;"><label>Product name</label><input type="text" id="new-name" placeholder="Rasgulla"></div>
+        <div class="field" style="margin-bottom:0;"><label>Price (₹)</label><input type="text" id="new-price" placeholder="240"></div>
+      </div>
+      <label style="display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;">Choose a photo</label>
+      <div class="photo-picker" id="photo-picker"></div>
+      <button class="btn-primary" onclick="addProduct()">Save product</button>
+    </div>
+  </div>
+</main>
+
+<!-- ===================== CART BAR ===================== -->
+<div class="cart-bar" id="cart-bar">
+  <div class="info"><span id="cart-count">0 items</span><b id="cart-total">₹0</b></div>
+  <button onclick="openCart()">View cart</button>
+</div>
+
+<!-- ===================== CART MODAL ===================== -->
+<div class="modal-backdrop" id="cart-modal">
+  <div class="modal-sheet">
+    <div class="modal-head"><h3>Your cart</h3><button class="modal-close" onclick="closeModal('cart-modal')">×</button></div>
+    <div id="cart-lines"></div>
+    <div class="cart-total-row"><span>Total</span><span id="cart-modal-total">₹0</span></div>
+    <button class="btn-primary" onclick="openCheckout()">Proceed to checkout</button>
+  </div>
+</div>
+
+<!-- ===================== CHECKOUT MODAL ===================== -->
+<div class="modal-backdrop" id="checkout-modal">
+  <div class="modal-sheet">
+    <div class="modal-head"><h3>Delivery details</h3><button class="modal-close" onclick="closeModal('checkout-modal')">×</button></div>
+    <div class="field"><label>Your name</label><input type="text" id="cust-name" placeholder="Priya Shah"></div>
+    <div class="field"><label>Phone number</label><input type="tel" id="cust-phone" placeholder="+91 98765 43210"></div>
+    <div class="field">
+      <label>Order type</label>
+      <select id="order-type"><option>Home delivery</option><option>Store pickup</option></select>
+    </div>
+    <div class="field"><label>Delivery address (optional for pickup)</label><input type="text" id="cust-address" placeholder="B-12, Shastri Nagar, Ahmedabad"></div>
+    <button class="btn-primary" onclick="placeOrder()">Place order — <span id="checkout-total">₹0</span></button>
+  </div>
+</div>
+
+<!-- ===================== CONFIRMATION MODAL ===================== -->
+<div class="modal-backdrop" id="confirm-modal">
+  <div class="modal-sheet">
+    <div class="modal-head"><h3></h3><button class="modal-close" onclick="closeModal('confirm-modal')">×</button></div>
+    <div class="confirm-wrap">
+      <div class="confirm-check">✓</div>
+      <h3>Order placed!</h3>
+      <p>Shree Krishna Sweets will confirm shortly. Here's what happens on their end, in real time:</p>
+      <div class="phone-mock">
+        <div class="phone-label">Shop owner's phone</div>
+        <div id="sms-area"><div class="sms-typing"><span></span><span></span><span></span></div></div>
+      </div>
+      <div class="order-track">
+        <div class="track-step"><div class="track-dot done">✓</div><div class="track-label">Placed</div></div>
+        <div class="track-step"><div class="track-dot" id="track-2"></div><div class="track-label">Accepted</div></div>
+        <div class="track-step"><div class="track-dot" id="track-3"></div><div class="track-label">Preparing</div></div>
+        <div class="track-step"><div class="track-dot" id="track-4"></div><div class="track-label">Delivered</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const photoLib = [
+    'https://images.unsplash.com/photo-1695568181558-034b7d3e49eb?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1695568180070-8b5acead5cf4?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1635564981692-857482d9325f?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1699708263762-00ca477760bd?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1610508500445-a4592435e27e?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1695568181440-aca4dac18650?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1635952346904-95f2ccfcd029?q=80&w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1695568181363-af5c78f4d059?q=80&w=300&auto=format&fit=crop',
+  ];
+
+  let products = [
+    {id:1, name:'Kaju Katli', price:420, unit:'per 250g box', img:photoLib[0], cat:'sweets', rating:'4.8 · 320 orders', bestseller:true, available:true},
+    {id:2, name:'Soan Papdi', price:180, unit:'per 250g box', img:photoLib[1], cat:'sweets', rating:'4.5 · 140 orders', bestseller:false, available:true},
+    {id:3, name:'Motichoor Ladoo', price:260, unit:'per 250g box', img:photoLib[2], cat:'sweets', rating:'4.7 · 210 orders', bestseller:true, available:true},
+    {id:4, name:'Gulab Jamun', price:200, unit:'per 12 pcs', img:photoLib[3], cat:'sweets', rating:'4.6 · 260 orders', bestseller:false, available:true},
+    {id:5, name:'Namkeen Mix', price:150, unit:'per 250g pack', img:photoLib[4], cat:'namkeen', rating:'4.4 · 95 orders', bestseller:false, available:true},
+    {id:6, name:'Assorted Dry Fruit Box', price:650, unit:'per 500g box', img:photoLib[5], cat:'gift', rating:'4.9 · 88 orders', bestseller:true, available:true},
+  ];
+  let cart = {};
+  let nextId = 7;
+  let activeCategory = 'all';
+
+  function setView(view, btn){
+    document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('customer-view').style.display = view==='customer' ? 'block' : 'none';
+    document.getElementById('owner-view').style.display = view==='owner' ? 'block' : 'none';
+    document.getElementById('cart-bar').style.display = view==='customer' ? 'flex' : 'none';
+    if (view==='customer') updateCartBar();
+  }
+
+  function setCategory(cat, btn){
+    activeCategory = cat;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderCustomerGrid();
+  }
+
+  function renderCustomerGrid(){
+    const grid = document.getElementById('product-grid');
+    grid.innerHTML = '';
+    products.filter(p => p.available && (activeCategory==='all' || p.cat===activeCategory)).forEach(p => {
+      const qty = cart[p.id] || 0;
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <div class="product-img">
+          ${p.bestseller ? '<div class="bestseller-badge">Bestseller</div>' : ''}
+          <img src="${p.img}" alt="${p.name}">
+        </div>
+        <div class="product-body">
+          <div class="product-name">${p.name}</div>
+          <div class="product-rating">${p.rating}</div>
+          <div class="product-price">₹${p.price} <span class="product-off">${p.unit}</span></div>
+          <div class="qty-row">
+            ${qty===0
+              ? `<button class="add-btn" onclick="changeQty(${p.id},1)">Add to cart</button>`
+              : `<div class="stepper"><button onclick="changeQty(${p.id},-1)">−</button><span>${qty}</span><button onclick="changeQty(${p.id},1)">+</button></div>`
+            }
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  function changeQty(id, delta){
+    cart[id] = Math.max(0, (cart[id]||0) + delta);
+    if (cart[id]===0) delete cart[id];
+    renderCustomerGrid();
+    updateCartBar();
+  }
+
+  function cartTotal(){
+    return Object.entries(cart).reduce((sum,[id,qty]) => {
+      const p = products.find(pr=>pr.id==id);
+      return sum + (p ? p.price*qty : 0);
+    }, 0);
+  }
+  function cartCount(){
+    return Object.values(cart).reduce((a,b)=>a+b,0);
+  }
+
+  function updateCartBar(){
+    const bar = document.getElementById('cart-bar');
+    const count = cartCount();
+    document.getElementById('cart-count').textContent = count + (count===1?' item':' items');
+    document.getElementById('cart-total').textContent = '₹' + cartTotal();
+    bar.classList.toggle('show', count > 0);
+  }
+
+  function openCart(){
+    const linesEl = document.getElementById('cart-lines');
+    linesEl.innerHTML = '';
+    Object.entries(cart).forEach(([id,qty]) => {
+      const p = products.find(pr=>pr.id==id);
+      if (!p) return;
+      const line = document.createElement('div');
+      line.className = 'cart-line';
+      line.innerHTML = `<img class="cart-thumb" src="${p.img}" alt="${p.name}"><div class="meta"><div class="name">${p.name}</div><div class="sub">${qty} × ₹${p.price}</div></div><div class="stepper"><button onclick="changeQty(${p.id},-1);openCart()">−</button><span>${qty}</span><button onclick="changeQty(${p.id},1);openCart()">+</button></div>`;
+      linesEl.appendChild(line);
+    });
+    document.getElementById('cart-modal-total').textContent = '₹' + cartTotal();
+    document.getElementById('cart-modal').classList.add('show');
+  }
+
+  function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+  function openCheckout(){
+    closeModal('cart-modal');
+    document.getElementById('checkout-total').textContent = '₹' + cartTotal();
+    document.getElementById('checkout-modal').classList.add('show');
+  }
+
+  function placeOrder(){
+    const name = document.getElementById('cust-name').value || 'Priya Shah';
+    closeModal('checkout-modal');
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.add('show');
+    document.getElementById('track-2').className = 'track-dot';
+    document.getElementById('track-3').className = 'track-dot';
+    document.getElementById('track-4').className = 'track-dot';
+    const smsArea = document.getElementById('sms-area');
+    smsArea.innerHTML = '<div class="sms-typing"><span></span><span></span><span></span></div>';
+    const itemsSummary = Object.entries(cart).map(([id,qty]) => {
+      const p = products.find(pr=>pr.id==id);
+      return `${qty}x ${p.name}`;
+    }).join(', ');
+    const total = cartTotal();
+    setTimeout(() => {
+      smsArea.innerHTML = `<div class="sms-bubble" id="sms-bubble">
+        <div class="from">New order · SMS from ShopLink</div>
+        ${name} ordered: ${itemsSummary}. Total ₹${total}. Reply YES to accept.
+      </div>`;
+      requestAnimationFrame(() => document.getElementById('sms-bubble').classList.add('show'));
+      setTimeout(() => { document.getElementById('track-2').className = 'track-dot done'; document.getElementById('track-2').textContent='✓'; }, 1400);
+      setTimeout(() => { document.getElementById('track-3').className = 'track-dot done'; document.getElementById('track-3').textContent='✓'; }, 2600);
+      cart = {};
+      renderCustomerGrid();
+      updateCartBar();
+    }, 1300);
+  }
+
+  // ---------- owner view ----------
+  function renderOwnerList(){
+    const list = document.getElementById('owner-list');
+    list.innerHTML = '';
+    products.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'owner-row';
+      row.innerHTML = `
+        <img class="owner-thumb" src="${p.img}" alt="${p.name}">
+        <div class="owner-info"><div class="n">${p.name}</div><div class="p">₹${p.price} · ${p.unit}</div></div>
+        <label class="owner-toggle">
+          <input type="checkbox" ${p.available?'checked':''} onchange="toggleAvailable(${p.id}, this.checked)">
+          <span class="ot-slider"></span>
+        </label>`;
+      list.appendChild(row);
+    });
+  }
+  function toggleAvailable(id, checked){
+    const p = products.find(pr=>pr.id===id);
+    if (p) p.available = checked;
+    renderCustomerGrid();
+  }
+
+  let selectedPhoto = photoLib[0];
+  function renderPhotoPicker(){
+    const picker = document.getElementById('photo-picker');
+    picker.innerHTML = '';
+    photoLib.forEach(url => {
+      const d = document.createElement('div');
+      if (url===selectedPhoto) d.classList.add('selected');
+      d.innerHTML = `<img src="${url}" alt="">`;
+      d.onclick = () => { selectedPhoto = url; renderPhotoPicker(); };
+      picker.appendChild(d);
+    });
+  }
+  function addProduct(){
+    const name = document.getElementById('new-name').value.trim();
+    const price = parseInt(document.getElementById('new-price').value, 10);
+    if (!name || !price){ alert('Enter a product name and price.'); return; }
+    products.push({id:nextId++, name, price, unit:'per unit', img:selectedPhoto, cat:'sweets', rating:'New', bestseller:false, available:true});
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-price').value = '';
+    renderOwnerList();
+    renderCustomerGrid();
+    alert(name + ' added! Switch to Customer view to see it live on the storefront.');
+  }
+
+  // live order ticker
+  const liveMessages = ['14 orders placed today','2 orders placed in the last hour','Kaju Katli — bestseller this week'];
+  let liveIdx = 0;
+  setInterval(() => {
+    liveIdx = (liveIdx+1) % liveMessages.length;
+    document.getElementById('live-text').textContent = liveMessages[liveIdx];
+  }, 5000);
+
+  // reveal on load
+  document.querySelectorAll('.reveal').forEach((el,i) => setTimeout(()=>el.classList.add('in'), 120*i));
+
+  renderCustomerGrid();
+  renderOwnerList();
+  renderPhotoPicker();
+</script>
+
+</body>
+</html>
