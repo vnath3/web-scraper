@@ -1331,7 +1331,7 @@
             "Is my data safe?": "Yes — we only use publicly available Google listing data to build your demo, and any customer data collected afterward stays in your own CRM."
         };
         const quickQuestions = Object.keys(faq);
-        const WHATSAPP_NUMBER = 'PLACEHOLDER_NUMBER';
+        const WHATSAPP_NUMBER = '919922333305';
 
         function renderQuick() {
             chatQuick.innerHTML = '';
@@ -1369,9 +1369,17 @@
             }, 900);
         }
 
-        chatToggle.addEventListener('click', () => {
+        chatToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             chatOpen = !chatOpen;
             chatPanel.classList.toggle('open', chatOpen);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!chatOpen) return;
+            if (chatPanel.contains(e.target) || chatToggle.contains(e.target)) return;
+            chatOpen = false;
+            chatPanel.classList.remove('open');
         });
     </script>
 
