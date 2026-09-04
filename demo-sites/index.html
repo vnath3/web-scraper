@@ -254,21 +254,178 @@
             cursor: pointer;
         }
 
-        /* animated flow network */
-        .flow-canvas {
-            position: absolute;
-            top: 0;
-            right: -60px;
-            width: 520px;
-            height: 420px;
-            z-index: 0;
-            opacity: .9;
-            pointer-events: none;
+        /* hero flow visual */
+        .hero-flex {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+        }
+
+        .hero-content {
+            flex: 1 1 480px;
+            min-width: 0;
+        }
+
+        .hero-visual {
+            flex: 0 0 280px;
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flow-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: 0 10px 24px rgba(23, 26, 43, 0.06);
+            opacity: 1;
+        }
+
+        .flow-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .flow-badge-g {
+            background: var(--indigo-light);
+            color: var(--indigo-deep);
+        }
+
+        .flow-badge-site {
+            background: var(--indigo);
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .flow-badge-wa {
+            background: var(--lime);
+            color: var(--ink);
+            font-size: 15px;
+        }
+
+        .flow-card-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .flow-card-sub {
+            font-size: 12px;
+            color: var(--ink-soft);
+            margin-top: 2px;
+        }
+
+        .flow-connector {
+            width: 2px;
+            height: 24px;
+            margin: 2px 0 2px 33px;
+        }
+
+        .flow-connector svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: visible;
+        }
+
+        .flow-connector-line {
+            stroke: var(--indigo);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 5 5;
+            opacity: .5;
+        }
+
+        .flow-chat {
+            display: flex;
+            flex-direction: column;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: 0 10px 24px rgba(23, 26, 43, 0.06);
+            margin-top: 14px;
+            opacity: 1;
+        }
+
+        .flow-chat-bubble {
+            max-width: 84%;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 12.5px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .flow-chat-bubble.in {
+            align-self: flex-start;
+            background: #EEEEF3;
+            color: var(--ink);
+            border-bottom-left-radius: 4px;
+        }
+
+        .flow-chat-bubble.out {
+            align-self: flex-end;
+            background: var(--lime);
+            color: var(--ink);
+            border-bottom-right-radius: 4px;
+            margin-bottom: 0;
+        }
+
+        .flow-chat-caption {
+            font-size: 11px;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .flow-card, .flow-chat {
+                opacity: 0;
+                transform: translateY(14px);
+                animation: flowFadeIn .6s ease forwards;
+            }
+
+            .flow-connector-line {
+                animation: flowDash 1s linear infinite;
+            }
+
+            @keyframes flowFadeIn {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes flowDash {
+                to {
+                    stroke-dashoffset: -20;
+                }
+            }
         }
 
         @media (max-width:900px) {
-            .flow-canvas {
-                display: none;
+            .hero-flex {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .hero-visual {
+                width: 100%;
+                max-width: 300px;
+                margin: 40px auto 0;
+                flex: none;
             }
         }
 
@@ -821,22 +978,58 @@
 
     <!-- ===================== HERO ===================== -->
     <section class="hero grid-bg">
-        <svg class="flow-canvas" viewBox="0 0 520 420">
-            <g id="flow-lines" stroke="#4B4FDB" stroke-width="1.5" fill="none" opacity="0.35"></g>
-            <g id="flow-dots"></g>
-        </svg>
-        <div class="wrap">
-            <div class="hero-eyebrow"><span class="d"></span>Now building for clinics, salons, gyms &amp; more</div>
-            <h1>Your Google listing is already a lead machine. <span class="accent">You just can't see it yet.</span>
-            </h1>
-            <p class="hero-sub">FlowGridLabs turns any Google Business listing into a live, mobile-first website with a
-                booking flow, a lightweight CRM, and WhatsApp-native AI automations — built fast, launched fast.</p>
-            <div class="cta-row">
-                <button class="btn-primary"
-                    onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">See live
-                    demos</button>
-                <button class="btn-outline" onclick="document.getElementById('chat-toggle').click()">Ask us
-                    anything</button>
+        <div class="wrap hero-flex">
+            <div class="hero-content">
+                <div class="hero-eyebrow"><span class="d"></span>Now building for clinics, salons, gyms &amp; more</div>
+                <h1>Your Google listing is already a lead machine. <span class="accent">You just can't see it yet.</span>
+                </h1>
+                <p class="hero-sub">FlowGridLabs turns any Google Business listing into a live, mobile-first website with a
+                    booking flow, a lightweight CRM, and WhatsApp-native AI automations — built fast, launched fast.</p>
+                <div class="cta-row">
+                    <button class="btn-primary"
+                        onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">See live
+                        demos</button>
+                    <button class="btn-outline" onclick="document.getElementById('chat-toggle').click()">Ask us
+                        anything</button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="flow-card" style="animation-delay:.1s">
+                    <div class="flow-badge flow-badge-g">G</div>
+                    <div>
+                        <div class="flow-card-title">Your Google listing</div>
+                        <div class="flow-card-sub">Reviews, hours, photos</div>
+                    </div>
+                </div>
+                <div class="flow-connector">
+                    <svg viewBox="0 0 2 24" preserveAspectRatio="none">
+                        <line class="flow-connector-line" x1="1" y1="0" x2="1" y2="24" />
+                    </svg>
+                </div>
+                <div class="flow-card" style="animation-delay:.25s">
+                    <div class="flow-badge flow-badge-site">🌐</div>
+                    <div>
+                        <div class="flow-card-title">Live booking site</div>
+                        <div class="flow-card-sub">Built from your data</div>
+                    </div>
+                </div>
+                <div class="flow-connector">
+                    <svg viewBox="0 0 2 24" preserveAspectRatio="none">
+                        <line class="flow-connector-line" x1="1" y1="0" x2="1" y2="24" />
+                    </svg>
+                </div>
+                <div class="flow-card" style="animation-delay:.4s">
+                    <div class="flow-badge flow-badge-wa">💬</div>
+                    <div>
+                        <div class="flow-card-title">Booked on WhatsApp</div>
+                        <div class="flow-card-sub">AI replies &amp; confirms</div>
+                    </div>
+                </div>
+                <div class="flow-chat" style="animation-delay:.55s">
+                    <div class="flow-chat-bubble in">Hi! Any slots today?</div>
+                    <div class="flow-chat-bubble out">Yes — 4pm works. Booked!</div>
+                    <div class="flow-chat-caption">Confirmed in seconds</div>
+                </div>
             </div>
         </div>
     </section>
@@ -1045,41 +1238,6 @@
             entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
         }, { threshold: 0.2 });
         revealEls.forEach(el => io.observe(el));
-
-        // animated flow network in hero
-        const svgLines = document.getElementById('flow-lines');
-        const svgDots = document.getElementById('flow-dots');
-        const nodes = [[40, 60], [180, 30], [320, 80], [460, 40], [90, 180], [250, 150], [400, 200], [150, 300], [330, 320], [460, 280]];
-        const edges = [[0, 1], [1, 2], [2, 3], [0, 4], [1, 5], [2, 6], [3, 6], [4, 5], [5, 6], [4, 7], [5, 8], [6, 9], [7, 8], [8, 9]];
-        edges.forEach(([a, b]) => {
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", nodes[a][0]); line.setAttribute("y1", nodes[a][1]);
-            line.setAttribute("x2", nodes[b][0]); line.setAttribute("y2", nodes[b][1]);
-            svgLines.appendChild(line);
-        });
-        nodes.forEach(([x, y], i) => {
-            const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", i % 3 === 0 ? 4 : 2.5);
-            c.setAttribute("fill", i % 3 === 0 ? "#8FD14F" : "#4B4FDB");
-            svgDots.appendChild(c);
-        });
-        // traveling pulses along edges
-        edges.forEach(([a, b], i) => {
-            const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            dot.setAttribute("r", "2.5"); dot.setAttribute("fill", "#8FD14F");
-            svgDots.appendChild(dot);
-            let t = Math.random();
-            const speed = 0.002 + Math.random() * 0.002;
-            function animatePulse() {
-                t += speed;
-                if (t > 1) t = 0;
-                const x = nodes[a][0] + (nodes[b][0] - nodes[a][0]) * t;
-                const y = nodes[a][1] + (nodes[b][1] - nodes[a][1]) * t;
-                dot.setAttribute("cx", x); dot.setAttribute("cy", y);
-                requestAnimationFrame(animatePulse);
-            }
-            setTimeout(() => requestAnimationFrame(animatePulse), i * 80);
-        });
 
         // chat assistant
         const chatToggle = document.getElementById('chat-toggle');
