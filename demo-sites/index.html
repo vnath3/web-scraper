@@ -606,6 +606,60 @@
             background: linear-gradient(135deg, #4B4FDB, #3638A8);
         }
 
+        /* featured demo card */
+        .demo-featured {
+            display: flex;
+            margin-bottom: 44px;
+        }
+
+        .demo-featured .demo-swatch {
+            flex: 0 0 42%;
+            height: auto;
+        }
+
+        .demo-featured .demo-body {
+            padding: 30px 34px;
+            justify-content: center;
+        }
+
+        .demo-featured .demo-name {
+            font-size: 23px;
+        }
+
+        .demo-featured .demo-desc {
+            font-size: 14.5px;
+            max-width: 460px;
+        }
+
+        @media (max-width:760px) {
+            .demo-featured {
+                flex-direction: column;
+            }
+
+            .demo-featured .demo-swatch {
+                flex: none;
+                height: 160px;
+            }
+        }
+
+        /* demo groups */
+        .demo-group {
+            margin-bottom: 40px;
+        }
+
+        .demo-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .demo-group-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ink-soft);
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
         /* why us */
         .why-grid {
             display: grid;
@@ -1079,72 +1133,83 @@
         <div class="wrap">
             <div class="section-label">Our work</div>
             <h2>Live demos, real interactions — pick your industry.</h2>
-            <div class="demo-grid">
-                <a class="demo-card" href="clinic/">
-                    <div class="demo-swatch swatch-clinic"><span class="tag">Clinic</span></div>
-                    <div class="demo-body">
-                        <div class="demo-name">Meridian Dental Co.</div>
-                        <div class="demo-desc">Trust-first design, new-patient offer, live booking flow.</div>
-                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                    </div>
-                </a>
-                <a class="demo-card" href="salon/">
-                    <div class="demo-swatch swatch-salon"><span class="tag">Salon</span></div>
-                    <div class="demo-body">
-                        <div class="demo-name">Aura Beauty Lounge</div>
-                        <div class="demo-desc">Service menu, review carousel, first-visit discount capture.</div>
-                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                    </div>
-                </a>
-                <a class="demo-card" href="groomer/">
-                    <div class="demo-swatch swatch-groomer"><span class="tag">Pet grooming</span></div>
-                    <div class="demo-body">
-                        <div class="demo-name">Fluff &amp; Co.</div>
-                        <div class="demo-desc">Draggable before/after slider — visual proof that sells itself.</div>
-                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                    </div>
-                </a>
-                <a class="demo-card" href="gym/">
-                    <div class="demo-swatch swatch-gym"><span class="tag">Fitness studio</span></div>
-                    <div class="demo-body">
-                        <div class="demo-name">Ironclad Fitness</div>
-                        <div class="demo-desc">Goal-finder quiz and a live class-capacity board.</div>
-                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                    </div>
-                </a>
-                <a class="demo-card" href="restaurant/">
-                    <div class="demo-swatch swatch-restaurant"><span class="tag">Restaurant</span></div>
-                    <div class="demo-body">
-                        <div class="demo-name">Copper &amp; Clove</div>
-                        <div class="demo-desc">Real table reservation widget with live time slots.</div>
-                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                    </div>
-                </a>
-                <a class="demo-card" href="crm-dashboard/">
-                    <div class="demo-swatch swatch-crm"><span class="tag">Behind the scenes</span></div>
-                    <div class="demo-body">
-                        <div class="demo-name">LeadLoop CRM</div>
-                        <div class="demo-desc">The dashboard, pipeline, and AI assistant running behind every site.
+
+            <a class="demo-card demo-featured" href="crm-dashboard/">
+                <div class="demo-swatch swatch-crm"><span class="tag">Behind the scenes</span></div>
+                <div class="demo-body">
+                    <div class="demo-name">LeadLoop CRM</div>
+                    <div class="demo-desc">The system behind every site — pipeline, live analytics, and an AI that
+                        books for you.</div>
+                    <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                </div>
+            </a>
+
+            <div class="demo-group">
+                <div class="demo-group-label">Appointment &amp; booking businesses</div>
+                <div class="demo-grid">
+                    <a class="demo-card" href="clinic/">
+                        <div class="demo-swatch swatch-clinic"><span class="tag">Clinic</span></div>
+                        <div class="demo-body">
+                            <div class="demo-name">Meridian Dental Co.</div>
+                            <div class="demo-desc">Trust-first design, new-patient offer, live booking flow.</div>
+                            <div class="demo-link">View live demo <span class="arrow">→</span></div>
                         </div>
+                    </a>
+                    <a class="demo-card" href="salon/">
+                        <div class="demo-swatch swatch-salon"><span class="tag">Salon</span></div>
+                        <div class="demo-body">
+                            <div class="demo-name">Aura Beauty Lounge</div>
+                            <div class="demo-desc">Service menu, review carousel, first-visit discount capture.</div>
+                            <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                        </div>
+                    </a>
+                    <a class="demo-card" href="groomer/">
+                        <div class="demo-swatch swatch-groomer"><span class="tag">Pet grooming</span></div>
+                        <div class="demo-body">
+                            <div class="demo-name">Fluff &amp; Co.</div>
+                            <div class="demo-desc">Draggable before/after slider — visual proof that sells itself.</div>
+                            <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                        </div>
+                    </a>
+                    <a class="demo-card" href="gym/">
+                        <div class="demo-swatch swatch-gym"><span class="tag">Fitness studio</span></div>
+                        <div class="demo-body">
+                            <div class="demo-name">Ironclad Fitness</div>
+                            <div class="demo-desc">Goal-finder quiz and a live class-capacity board.</div>
+                            <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                        </div>
+                    </a>
+                    <a class="demo-card" href="restaurant/">
+                        <div class="demo-swatch swatch-restaurant"><span class="tag">Restaurant</span></div>
+                        <div class="demo-body">
+                            <div class="demo-name">Copper &amp; Clove</div>
+                            <div class="demo-desc">Real table reservation widget with live time slots.</div>
+                            <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="demo-group">
+                <div class="demo-group-label">Catalog &amp; order businesses</div>
+                <div class="demo-grid">
+                    <a class="demo-card" href="storefront/">
+                      <div class="demo-swatch" style="background:linear-gradient(135deg,#8C2F39,#D9A431);"><span class="tag">Catalog & orders</span></div>
+                      <div class="demo-body">
+                        <div class="demo-name">Shree Krishna Sweets</div>
+                        <div class="demo-desc">A shareable product catalog — customers order, you get an instant SMS.</div>
                         <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                    </div>
-                </a>
-                <a class="demo-card" href="storefront/">
-                  <div class="demo-swatch" style="background:linear-gradient(135deg,#8C2F39,#D9A431);"><span class="tag">Catalog & orders</span></div>
-                  <div class="demo-body">
-                    <div class="demo-name">Shree Krishna Sweets</div>
-                    <div class="demo-desc">A shareable product catalog — customers order, you get an instant SMS.</div>
-                    <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                  </div>
-                </a>
-                <a class="demo-card" href="storefront-boutique/">
-                  <div class="demo-swatch" style="background:linear-gradient(135deg,#5B2A5E,#C9A227);"><span class="tag">Boutique catalog</span></div>
-                  <div class="demo-body">
-                    <div class="demo-name">Meera's Ethnic Studio</div>
-                    <div class="demo-desc">Size & colour selection, real-time order alerts — built for clothing sellers.</div>
-                    <div class="demo-link">View live demo <span class="arrow">→</span></div>
-                  </div>
-                </a>
+                      </div>
+                    </a>
+                    <a class="demo-card" href="storefront-boutique/">
+                      <div class="demo-swatch" style="background:linear-gradient(135deg,#5B2A5E,#C9A227);"><span class="tag">Boutique catalog</span></div>
+                      <div class="demo-body">
+                        <div class="demo-name">Meera's Ethnic Studio</div>
+                        <div class="demo-desc">Size & colour selection, real-time order alerts — built for clothing sellers.</div>
+                        <div class="demo-link">View live demo <span class="arrow">→</span></div>
+                      </div>
+                    </a>
+                </div>
             </div>
         </div>
     </section>

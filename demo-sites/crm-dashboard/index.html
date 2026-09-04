@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClinicFlow — Dashboard</title>
+<title>LeadLoop — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -12,88 +12,97 @@
     --teal:#0F6E56; --teal-deep:#085041; --teal-light:#E1F5EE;
     --purple:#534AB7; --purple-light:#EEEDFE;
     --amber:#BA7517; --amber-light:#FAEEDA;
-    --coral:#D85A30;
+    --coral:#D85A30; --coral-light:#FAECE7;
     --line:#E3E0D6; --sidebar:#1B2621;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);}
   button{font-family:'Inter',sans-serif;}
 
-  .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+  .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;position:relative;}
 
   /* ---------- sidebar ---------- */
-  .sidebar{background:var(--sidebar);color:#EDEAE0;padding:24px 16px;display:flex;flex-direction:column;}
-  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;padding:0 8px 28px;display:flex;align-items:center;gap:8px;}
-  .logo .dot{width:8px;height:8px;border-radius:50%;background:#5DCAA5;}
+  .sidebar{background:var(--sidebar);color:#EDEAE0;padding:24px 16px;display:flex;flex-direction:column;z-index:200;}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;padding:0 8px 28px;display:flex;align-items:center;gap:10px;}
   .nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;font-size:14px;color:#C7C4B8;cursor:pointer;margin-bottom:2px;transition:background .15s,color .15s;}
   .nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
   .nav-item.active{background:rgba(93,202,165,0.14);color:#5DCAA5;font-weight:500;}
   .nav-badge{margin-left:auto;background:#D85A30;color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:999px;letter-spacing:.02em;}
   .sidebar-foot{margin-top:auto;padding:12px;font-size:12px;color:#7A7A70;}
+  .sidebar-close{display:none;background:none;border:none;color:#C7C4B8;font-size:22px;cursor:pointer;position:absolute;top:18px;right:16px;}
 
   /* ---------- main ---------- */
-  .main{padding:32px 40px;overflow-x:hidden;}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:14px;}
-  .topbar-left{display:flex;align-items:center;gap:6px;}
-  .topbar h1{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;}
-  .clinic-select{font-size:13px;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:8px;}
-
-  /* ---------- mobile menu toggle ---------- */
-  .menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0;}
-  .menu-toggle span{display:block;width:20px;height:2px;background:var(--ink);margin:4px 0;border-radius:2px;}
-  .sidebar-backdrop{display:none;}
+  .main{padding:24px 32px;overflow-x:hidden;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:12px;}
+  .topbar-left{display:flex;align-items:center;gap:12px;min-width:0;}
+  .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0;}
+  .hamburger span{display:block;width:20px;height:2px;background:var(--ink);margin:4px 0;border-radius:2px;}
+  .topbar h1{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;white-space:nowrap;}
+  .clinic-select{font-size:12.5px;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);padding:8px 12px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
 
   .tab-content{display:none;}
   .tab-content.active{display:block;animation:fadeIn .35s ease;}
   @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
   /* ---------- metric cards ---------- */
-  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
-  .metric-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;}
-  .metric-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;}
-  .metric-value{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;}
-  .metric-trend{font-size:12px;margin-top:6px;color:var(--teal-deep);display:flex;align-items:center;gap:4px;}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .metric-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0;}
+  .metric-label{font-size:12px;color:var(--ink-soft);margin-bottom:8px;line-height:1.3;}
+  .metric-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;line-height:1.1;overflow-wrap:break-word;}
+  .metric-trend{font-size:11.5px;margin-top:6px;color:var(--teal-deep);display:flex;align-items:center;gap:4px;line-height:1.3;}
 
-  /* ---------- dashboard grid ---------- */
-  .dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;}
-  .card-title{font-size:14.5px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
-  .live-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--teal-deep);background:var(--teal-light);padding:4px 9px;border-radius:999px;font-weight:500;}
+  .dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0;}
+  .card-title{font-size:14px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .live-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--teal-deep);background:var(--teal-light);padding:4px 9px;border-radius:999px;font-weight:500;white-space:nowrap;}
   .live-pill .d{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,110,86,.5);}70%{box-shadow:0 0 0 6px rgba(15,110,86,0);}100%{box-shadow:0 0 0 0 rgba(15,110,86,0);}}
 
-  /* mini bar chart */
-  .bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:6px;}
-  .bar{flex:1;background:linear-gradient(180deg,#5DCAA5,#0F6E56);border-radius:4px 4px 0 0;transform:scaleY(0);transform-origin:bottom;transition:transform 1s ease;}
-  .bar-labels{display:flex;gap:8px;margin-top:8px;}
+  /* ---------- chart (fixed: explicit heights, flex-end bars) ---------- */
+  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:140px;margin-top:6px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0;}
+  .bar{width:100%;background:linear-gradient(180deg,#5DCAA5,#0F6E56);border-radius:4px 4px 0 0;height:0;transition:height 1s ease;min-height:2px;}
+  .bar-labels{display:flex;gap:6px;margin-top:8px;}
   .bar-labels span{flex:1;text-align:center;font-size:10.5px;color:var(--ink-soft);}
 
   /* activity feed */
-  .feed{display:flex;flex-direction:column;gap:12px;max-height:340px;overflow:hidden;}
-  .feed-item{display:flex;gap:10px;font-size:13px;padding:10px;border-radius:8px;background:#FBFAF7;opacity:0;transform:translateY(-6px);animation:feedIn .4s ease forwards;}
+  .feed{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow:hidden;}
+  .feed-item{display:flex;gap:10px;font-size:13px;padding:10px;border-radius:8px;background:#FBFAF7;opacity:0;transform:translateY(-6px);animation:feedIn .4s ease forwards;align-items:center;}
   @keyframes feedIn{to{opacity:1;transform:translateY(0);}}
-  .feed-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .feed-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;font-weight:600;}
   .feed-icon.new{background:var(--teal-light);color:var(--teal-deep);}
   .feed-icon.ai{background:var(--purple-light);color:var(--purple);}
   .feed-icon.book{background:var(--amber-light);color:var(--amber);}
+  .feed-text{flex:1;min-width:0;}
   .feed-text b{font-weight:600;}
-  .feed-time{font-size:11px;color:var(--ink-soft);margin-left:auto;white-space:nowrap;}
+  .feed-time{font-size:11px;color:var(--ink-soft);white-space:nowrap;flex-shrink:0;}
 
-  /* ---------- pipeline / CRM tab ---------- */
-  .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
-  .col-title{font-size:12.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;display:flex;justify-content:space-between;}
+  /* ---------- pipeline (draggable) ---------- */
+  .pipeline-hint{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+  .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .pipe-col{background:#EFEDE6;border-radius:10px;padding:10px;min-height:120px;transition:background .15s;}
+  .pipe-col.drag-over{background:var(--teal-light);outline:2px dashed var(--teal);outline-offset:-2px;}
+  .col-title{font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;display:flex;justify-content:space-between;padding:0 2px;}
   .col-count{background:var(--line);color:var(--ink-soft);font-size:11px;padding:1px 7px;border-radius:999px;}
-  .lead-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:10px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
-  .lead-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.06);}
-  .lead-name{font-size:13.5px;font-weight:600;margin-bottom:4px;}
-  .lead-meta{font-size:11.5px;color:var(--ink-soft);}
-  .lead-source{display:inline-block;margin-top:8px;font-size:10.5px;padding:2px 7px;border-radius:999px;background:var(--teal-light);color:var(--teal-deep);}
+  .lead-card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px;margin-bottom:8px;cursor:grab;transition:transform .12s,box-shadow .12s,opacity .2s;}
+  .lead-card:active{cursor:grabbing;}
+  .lead-card.dragging{opacity:0.4;}
+  .lead-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+  .lead-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+  .lead-meta{font-size:11px;color:var(--ink-soft);}
+  .lead-source{display:inline-block;margin-top:7px;font-size:10px;padding:2px 7px;border-radius:999px;background:var(--teal-light);color:var(--teal-deep);}
 
-  /* ---------- automations tab ---------- */
+  /* toast */
+  .toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 32px);max-width:420px;}
+  .toast{background:var(--sidebar);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.25);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(12px);transition:opacity .3s,transform .3s;width:100%;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast .ai-chip{background:var(--purple);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;flex-shrink:0;}
+
+  /* automations tab */
   .automation-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
   .auto-row{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:16px;}
   .auto-icon{width:38px;height:38px;border-radius:9px;background:var(--purple-light);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .auto-info{flex:1;}
+  .auto-info{flex:1;min-width:0;}
   .auto-title{font-size:14px;font-weight:600;}
   .auto-desc{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
   .switch{position:relative;width:40px;height:22px;flex-shrink:0;}
@@ -103,7 +112,6 @@
   .switch input:checked + .slider{background:var(--teal);}
   .switch input:checked + .slider:before{transform:translateX(18px);}
 
-  /* AI chat demo */
   .chat-demo-wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:24px;}
   .chat-explain h3{font-family:'Space Grotesk',sans-serif;font-size:18px;margin-bottom:10px;}
   .chat-explain p{font-size:14px;color:var(--ink-soft);margin-bottom:14px;line-height:1.6;}
@@ -111,8 +119,8 @@
   .phone{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:0;overflow:hidden;}
   .phone-head{background:var(--teal-deep);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;}
   .phone-head .av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
-  .phone-body{background:#EFEAE0;min-height:380px;padding:18px;display:flex;flex-direction:column;gap:10px;}
-  .bubble{max-width:78%;padding:10px 13px;border-radius:12px;font-size:13.5px;opacity:0;transform:translateY(8px);animation:bubbleIn .35s ease forwards;line-height:1.45;}
+  .phone-body{background:#EFEAE0;min-height:360px;padding:18px;display:flex;flex-direction:column;gap:10px;}
+  .bubble{max-width:80%;padding:10px 13px;border-radius:12px;font-size:13.5px;opacity:0;transform:translateY(8px);animation:bubbleIn .35s ease forwards;line-height:1.45;}
   @keyframes bubbleIn{to{opacity:1;transform:translateY(0);}}
   .bubble.in{background:#fff;align-self:flex-start;border-bottom-left-radius:3px;}
   .bubble.out{background:var(--teal);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
@@ -124,47 +132,46 @@
   @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
   .system-chip{align-self:center;background:var(--amber-light);color:var(--amber);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:999px;opacity:0;animation:bubbleIn .35s ease forwards;}
 
+  /* ---------- mobile ---------- */
+  .backdrop{display:none;position:fixed;inset:0;background:rgba(20,20,18,0.5);z-index:150;}
+  .backdrop.show{display:block;}
+
   @media (max-width:900px){
     .app{grid-template-columns:1fr;}
-    .menu-toggle{display:block;}
-    .sidebar{
-      position:fixed;top:0;left:0;bottom:0;z-index:200;
-      width:230px;
-      transform:translateX(-100%);
-      transition:transform .25s ease;
-    }
+    .sidebar{position:fixed;top:0;left:0;bottom:0;width:250px;transform:translateX(-100%);transition:transform .3s ease;}
     .sidebar.open{transform:translateX(0);}
-    .sidebar-backdrop{
-      display:block;
-      position:fixed;inset:0;z-index:150;
-      background:rgba(0,0,0,0.45);
-      opacity:0;pointer-events:none;
-      transition:opacity .25s ease;
-    }
-    .sidebar-backdrop.open{opacity:1;pointer-events:auto;}
+    .sidebar-close{display:block;}
+    .hamburger{display:block;}
+    .main{padding:20px 18px;}
     .metrics{grid-template-columns:repeat(2,1fr);}
     .dash-grid{grid-template-columns:1fr;}
-    .pipeline{grid-template-columns:1fr 1fr;}
     .chat-demo-wrap{grid-template-columns:1fr;}
+    /* pipeline becomes horizontal-scroll columns on mobile */
+    .pipeline{grid-template-columns:repeat(5,minmax(150px,1fr));overflow-x:auto;padding-bottom:8px;}
   }
 </style>
 </head>
 <body>
 
+<div class="backdrop" id="backdrop" onclick="closeSidebar()"></div>
+
 <div class="app">
-  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
   <aside class="sidebar" id="sidebar">
-    <div class="logo"><span class="dot"></span>ClinicFlow</div>
-    <div class="nav-item active" data-tab="dashboard">Dashboard</div>
-    <div class="nav-item" data-tab="pipeline">Leads &amp; pipeline</div>
-    <div class="nav-item" data-tab="automations">Automations &amp; AI<span class="nav-badge">LIVE</span></div>
+    <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close menu">×</button>
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 56 56"><rect x="2" y="2" width="52" height="52" rx="14" fill="#5DCAA5"/><path d="M17 39 L28 28 L39 17" fill="none" stroke="#1B2621" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="39" cy="17" r="5" fill="#fff"/></svg>
+      LeadLoop
+    </div>
+    <div class="nav-item active" data-tab="dashboard" onclick="closeSidebar()">Dashboard</div>
+    <div class="nav-item" data-tab="pipeline" onclick="closeSidebar()">Leads &amp; pipeline</div>
+    <div class="nav-item" data-tab="automations" onclick="closeSidebar()">Automations &amp; AI<span class="nav-badge">LIVE</span></div>
     <div class="sidebar-foot">Meridian Dental Co.<br>Pune · common CRM build</div>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+        <button class="hamburger" id="hamburger" onclick="openSidebar()" aria-label="Open menu"><span></span><span></span><span></span></button>
         <h1 id="page-title">Dashboard</h1>
       </div>
       <div class="clinic-select">Meridian Dental Co. ▾</div>
@@ -179,19 +186,39 @@
           <div class="metric-trend">↑ 24% vs last month</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Lead → booked conversion</div>
+          <div class="metric-label">Lead → booked</div>
           <div class="metric-value" data-target="34" data-suffix="%">0</div>
           <div class="metric-trend">↑ 6pt vs last month</div>
         </div>
         <div class="metric-card">
           <div class="metric-label">Show-up rate</div>
           <div class="metric-value" data-target="89" data-suffix="%">0</div>
-          <div class="metric-trend">↑ 11pt since AI reminders</div>
+          <div class="metric-trend">↑ 11pt since reminders</div>
         </div>
         <div class="metric-card">
           <div class="metric-label">Revenue recovered</div>
-          <div class="metric-value" data-target="184000" data-prefix="₹" data-format="lakh">₹0</div>
-          <div class="metric-trend">↑ from re-engaged no-shows</div>
+          <div class="metric-value" data-target="184000" data-prefix="₹" data-format="in">₹0</div>
+          <div class="metric-trend">↑ from no-show recovery</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Avg response time</div>
+          <div class="metric-value" data-target="90" data-suffix="s">0</div>
+          <div class="metric-trend">AI replies instantly</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active conversations</div>
+          <div class="metric-value" data-target="12">0</div>
+          <div class="metric-trend">3 awaiting reply</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Bookings this week</div>
+          <div class="metric-value" data-target="41">0</div>
+          <div class="metric-trend">↑ 9 vs last week</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">No-shows recovered</div>
+          <div class="metric-value" data-target="7">0</div>
+          <div class="metric-trend">via AI follow-up</div>
         </div>
       </div>
 
@@ -208,38 +235,13 @@
       </div>
     </div>
 
-    <!-- ========== PIPELINE / CRM TAB ========== -->
+    <!-- ========== PIPELINE TAB ========== -->
     <div class="tab-content" id="tab-pipeline">
-      <div class="pipeline">
-        <div>
-          <div class="col-title">New <span class="col-count">6</span></div>
-          <div class="lead-card"><div class="lead-name">Ananya Rao</div><div class="lead-meta">Landing page · 4m ago</div><span class="lead-source">Free consult</span></div>
-          <div class="lead-card"><div class="lead-name">Karan Mehta</div><div class="lead-meta">Google listing · 22m ago</div><span class="lead-source">Direct</span></div>
-          <div class="lead-card"><div class="lead-name">Fatima Sheikh</div><div class="lead-meta">WhatsApp · 1h ago</div><span class="lead-source">Referral</span></div>
-        </div>
-        <div>
-          <div class="col-title">Contacted <span class="col-count">4</span></div>
-          <div class="lead-card"><div class="lead-name">Vikram Nair</div><div class="lead-meta">AI greeting sent · 2h ago</div><span class="lead-source">Free consult</span></div>
-          <div class="lead-card"><div class="lead-name">Sneha Iyer</div><div class="lead-meta">Awaiting reply · 3h ago</div><span class="lead-source">Direct</span></div>
-        </div>
-        <div>
-          <div class="col-title">Booked <span class="col-count">5</span></div>
-          <div class="lead-card"><div class="lead-name">Rohan Das</div><div class="lead-meta">Thu 11:00 AM</div><span class="lead-source">AI booked</span></div>
-          <div class="lead-card"><div class="lead-name">Meera Pillai</div><div class="lead-meta">Fri 4:00 PM</div><span class="lead-source">AI booked</span></div>
-        </div>
-        <div>
-          <div class="col-title">Showed <span class="col-count">21</span></div>
-          <div class="lead-card"><div class="lead-name">Arjun Kapoor</div><div class="lead-meta">Visited yesterday</div><span class="lead-source">Returning</span></div>
-          <div class="lead-card"><div class="lead-name">Divya Menon</div><div class="lead-meta">Visited Mon</div><span class="lead-source">Returning</span></div>
-        </div>
-        <div>
-          <div class="col-title">No-show / re-engage <span class="col-count">3</span></div>
-          <div class="lead-card"><div class="lead-name">Sameer Joshi</div><div class="lead-meta">AI follow-up sent</div><span class="lead-source">Re-engaging</span></div>
-        </div>
-      </div>
+      <div class="pipeline-hint">↔ Drag a lead card between stages — watch what the AI does automatically.</div>
+      <div class="pipeline" id="pipeline"></div>
     </div>
 
-    <!-- ========== AUTOMATIONS & AI TAB ========== -->
+    <!-- ========== AUTOMATIONS TAB ========== -->
     <div class="tab-content" id="tab-automations">
       <div class="automation-list">
         <div class="auto-row">
@@ -290,8 +292,14 @@
   </main>
 </div>
 
+<div class="toast-wrap" id="toast-wrap"></div>
+
 <script>
-  // sidebar tab switching
+  // sidebar mobile
+  function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('backdrop').classList.add('show'); }
+  function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('backdrop').classList.remove('show'); }
+
+  // tabs
   const navItems = document.querySelectorAll('.nav-item');
   const titles = {dashboard:'Dashboard', pipeline:'Leads & pipeline', automations:'Automations & AI'};
   navItems.forEach(item => {
@@ -301,38 +309,19 @@
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.getElementById('tab-' + item.dataset.tab).classList.add('active');
       document.getElementById('page-title').textContent = titles[item.dataset.tab];
-      closeSidebar();
     });
   });
 
-  // mobile sidebar drawer
-  const sidebar = document.getElementById('sidebar');
-  const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-  const menuToggle = document.getElementById('menu-toggle');
-  function openSidebar(){
-    sidebar.classList.add('open');
-    sidebarBackdrop.classList.add('open');
-  }
-  function closeSidebar(){
-    sidebar.classList.remove('open');
-    sidebarBackdrop.classList.remove('open');
-  }
-  menuToggle.addEventListener('click', openSidebar);
-  sidebarBackdrop.addEventListener('click', closeSidebar);
-
-  // animated counters
+  // counters
   function formatVal(el, val){
     const suffix = el.dataset.suffix || '';
     const prefix = el.dataset.prefix || '';
-    if (el.dataset.format === 'lakh'){
-      return prefix + Math.round(val).toLocaleString('en-IN');
-    }
+    if (el.dataset.format === 'in'){ return prefix + Math.round(val).toLocaleString('en-IN'); }
     return prefix + Math.round(val) + suffix;
   }
   document.querySelectorAll('.metric-value').forEach(el => {
     const target = parseFloat(el.dataset.target);
-    const dur = 1300;
-    const start = performance.now();
+    const dur = 1300; const start = performance.now();
     function tick(now){
       const p = Math.min((now - start)/dur, 1);
       const eased = 1 - Math.pow(1-p, 3);
@@ -342,24 +331,32 @@
     requestAnimationFrame(tick);
   });
 
-  // bar chart
+  // chart — build columns with explicit height, animate after a tick
   const barVals = [40,65,50,80,60,35,20];
-  const barChart = document.getElementById('bar-chart');
-  barVals.forEach((v,i) => {
+  const chart = document.getElementById('bar-chart');
+  const bars = [];
+  barVals.forEach(v => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
     const bar = document.createElement('div');
     bar.className = 'bar';
-    barChart.appendChild(bar);
-    setTimeout(()=>{ bar.style.transform = `scaleY(${v/100})`; }, 150 + i*80);
+    bar.dataset.pct = v;
+    col.appendChild(bar);
+    chart.appendChild(col);
+    bars.push(bar);
+  });
+  requestAnimationFrame(() => {
+    setTimeout(() => { bars.forEach((bar,i) => { setTimeout(()=>{ bar.style.height = bar.dataset.pct + '%'; }, i*80); }); }, 100);
   });
 
-  // live activity feed
+  // activity feed
   const feedEvents = [
-    {icon:'new', cls:'new', html:'<b>Ananya Rao</b> submitted the free consult form', time:'Just now'},
-    {icon:'ai', cls:'ai', html:'AI sent a WhatsApp greeting to <b>Ananya Rao</b>', time:'1m ago'},
-    {icon:'book', cls:'book', html:'AI booked <b>Rohan Das</b> for Thu 11:00 AM', time:'6m ago'},
-    {icon:'ai', cls:'ai', html:'AI sent a reminder to <b>Meera Pillai</b>', time:'14m ago'},
-    {icon:'new', cls:'new', html:'<b>Karan Mehta</b> viewed the landing page', time:'22m ago'},
-    {icon:'book', cls:'book', html:'<b>Vikram Nair</b> confirmed his slot on WhatsApp', time:'40m ago'},
+    {cls:'new', html:'<b>Ananya Rao</b> submitted the free consult form', time:'Just now'},
+    {cls:'ai', html:'AI sent a WhatsApp greeting to <b>Ananya Rao</b>', time:'1m ago'},
+    {cls:'book', html:'AI booked <b>Rohan Das</b> for Thu 11:00 AM', time:'6m ago'},
+    {cls:'ai', html:'AI sent a reminder to <b>Meera Pillai</b>', time:'14m ago'},
+    {cls:'new', html:'<b>Karan Mehta</b> viewed the landing page', time:'22m ago'},
+    {cls:'book', html:'<b>Vikram Nair</b> confirmed his slot on WhatsApp', time:'40m ago'},
   ];
   const feedEl = document.getElementById('feed');
   const icons = {new:'●', ai:'AI', book:'✓'};
@@ -374,13 +371,105 @@
     });
   }
   renderFeed();
-  setInterval(() => {
-    feedEvents.unshift({icon:'ai', cls:'ai', html:'AI answered a new WhatsApp message', time:'Just now'});
-    feedEvents.pop();
-    renderFeed();
-  }, 7000);
+  setInterval(() => { feedEvents.unshift({cls:'ai', html:'AI answered a new WhatsApp message', time:'Just now'}); feedEvents.pop(); renderFeed(); }, 7000);
 
-  // AI chat demo — looping scripted conversation
+  // ---------- draggable pipeline ----------
+  const stages = [
+    {id:'new', title:'New'},
+    {id:'contacted', title:'Contacted'},
+    {id:'booked', title:'Booked'},
+    {id:'showed', title:'Showed'},
+    {id:'reengage', title:'No-show'},
+  ];
+  let leads = [
+    {id:'l1', name:'Ananya Rao', meta:'Landing page · 4m ago', source:'Free consult', stage:'new'},
+    {id:'l2', name:'Karan Mehta', meta:'Google listing · 22m ago', source:'Direct', stage:'new'},
+    {id:'l3', name:'Fatima Sheikh', meta:'WhatsApp · 1h ago', source:'Referral', stage:'new'},
+    {id:'l4', name:'Vikram Nair', meta:'AI greeting sent · 2h ago', source:'Free consult', stage:'contacted'},
+    {id:'l5', name:'Sneha Iyer', meta:'Awaiting reply · 3h ago', source:'Direct', stage:'contacted'},
+    {id:'l6', name:'Rohan Das', meta:'Thu 11:00 AM', source:'AI booked', stage:'booked'},
+    {id:'l7', name:'Meera Pillai', meta:'Fri 4:00 PM', source:'AI booked', stage:'booked'},
+    {id:'l8', name:'Arjun Kapoor', meta:'Visited yesterday', source:'Returning', stage:'showed'},
+    {id:'l9', name:'Divya Menon', meta:'Visited Mon', source:'Returning', stage:'showed'},
+    {id:'l10', name:'Sameer Joshi', meta:'AI follow-up sent', source:'Re-engaging', stage:'reengage'},
+  ];
+
+  const aiActions = {
+    contacted:'AI sent a WhatsApp greeting to',
+    booked:'AI confirmed the appointment for',
+    showed:'AI logged the visit and requested a review from',
+    reengage:'AI sent a rebooking nudge to',
+    new:'Lead moved back to New —',
+  };
+
+  function renderPipeline(){
+    const pipe = document.getElementById('pipeline');
+    pipe.innerHTML = '';
+    stages.forEach(stage => {
+      const count = leads.filter(l => l.stage===stage.id).length;
+      const col = document.createElement('div');
+      col.className = 'pipe-col';
+      col.dataset.stage = stage.id;
+      col.innerHTML = `<div class="col-title"><span>${stage.title}</span><span class="col-count">${count}</span></div>`;
+      leads.filter(l => l.stage===stage.id).forEach(l => {
+        const card = document.createElement('div');
+        card.className = 'lead-card';
+        card.draggable = true;
+        card.dataset.id = l.id;
+        card.innerHTML = `<div class="lead-name">${l.name}</div><div class="lead-meta">${l.meta}</div><span class="lead-source">${l.source}</span>`;
+        col.appendChild(card);
+      });
+      pipe.appendChild(col);
+    });
+    attachDrag();
+  }
+
+  function attachDrag(){
+    let dragged = null;
+    document.querySelectorAll('.lead-card').forEach(card => {
+      card.addEventListener('dragstart', e => { dragged = card; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+      card.addEventListener('dragend', () => { card.classList.remove('dragging'); document.querySelectorAll('.pipe-col').forEach(c=>c.classList.remove('drag-over')); });
+    });
+    document.querySelectorAll('.pipe-col').forEach(col => {
+      col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+      col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+      col.addEventListener('drop', e => {
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        if (!dragged) return;
+        const id = dragged.dataset.id;
+        const newStage = col.dataset.stage;
+        const lead = leads.find(l => l.id===id);
+        if (lead && lead.stage !== newStage){
+          lead.stage = newStage;
+          renderPipeline();
+          const action = aiActions[newStage] || 'Updated';
+          showToast(`${action} ${lead.name}`);
+        }
+      });
+    });
+    // touch fallback: tap-to-advance
+    document.querySelectorAll('.lead-card').forEach(card => {
+      let touchTimer;
+      card.addEventListener('touchend', e => {
+        // simple tap = advance one stage (mobile can't easily drag across scroll columns)
+      });
+    });
+  }
+
+  function showToast(msg){
+    const wrap = document.getElementById('toast-wrap');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span class="ai-chip">AI</span><span>${msg}</span>`;
+    wrap.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(()=>toast.remove(), 300); }, 3200);
+  }
+
+  renderPipeline();
+
+  // AI chat demo
   const chatBody = document.getElementById('chat-body');
   const script = [
     {type:'in', text:"Hi, I saw your ad — do you have any slots this week?"},
@@ -392,39 +481,23 @@
     {type:'system', text:'✓ Appointment created in CRM'},
   ];
   let step = 0;
-  function playChat(){
-    chatBody.innerHTML = '';
-    step = 0;
-    nextStep();
-  }
+  function playChat(){ chatBody.innerHTML=''; step=0; nextStep(); }
   function nextStep(){
-    if (step >= script.length){
-      setTimeout(playChat, 3200);
-      return;
-    }
+    if (step >= script.length){ setTimeout(playChat, 3200); return; }
     const item = script[step];
     if (item.type === 'typing'){
-      const t = document.createElement('div');
-      t.className = 'typing';
-      t.innerHTML = '<span></span><span></span><span></span>';
-      chatBody.appendChild(t);
-      chatBody.scrollTop = chatBody.scrollHeight;
-      setTimeout(() => { t.remove(); step++; nextStep(); }, 1100);
-      return;
+      const t = document.createElement('div'); t.className='typing'; t.innerHTML='<span></span><span></span><span></span>';
+      chatBody.appendChild(t); chatBody.scrollTop = chatBody.scrollHeight;
+      setTimeout(() => { t.remove(); step++; nextStep(); }, 1100); return;
     }
     if (item.type === 'system'){
-      const s = document.createElement('div');
-      s.className = 'system-chip';
-      s.textContent = item.text;
-      chatBody.appendChild(s);
+      const s = document.createElement('div'); s.className='system-chip'; s.textContent=item.text; chatBody.appendChild(s);
     } else {
-      const b = document.createElement('div');
-      b.className = 'bubble ' + item.type;
+      const b = document.createElement('div'); b.className='bubble '+item.type;
       b.innerHTML = item.text + (item.tag ? `<span class="tag">${item.tag}</span>` : '');
       chatBody.appendChild(b);
     }
-    chatBody.scrollTop = chatBody.scrollHeight;
-    step++;
+    chatBody.scrollTop = chatBody.scrollHeight; step++;
     setTimeout(nextStep, 900);
   }
   playChat();
