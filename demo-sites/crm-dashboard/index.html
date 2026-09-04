@@ -33,9 +33,15 @@
 
   /* ---------- main ---------- */
   .main{padding:32px 40px;overflow-x:hidden;}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:14px;}
+  .topbar-left{display:flex;align-items:center;gap:6px;}
   .topbar h1{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;}
   .clinic-select{font-size:13px;color:var(--ink-soft);background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:8px;}
+
+  /* ---------- mobile menu toggle ---------- */
+  .menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0;}
+  .menu-toggle span{display:block;width:20px;height:2px;background:var(--ink);margin:4px 0;border-radius:2px;}
+  .sidebar-backdrop{display:none;}
 
   .tab-content{display:none;}
   .tab-content.active{display:block;animation:fadeIn .35s ease;}
@@ -120,7 +126,22 @@
 
   @media (max-width:900px){
     .app{grid-template-columns:1fr;}
-    .sidebar{display:none;}
+    .menu-toggle{display:block;}
+    .sidebar{
+      position:fixed;top:0;left:0;bottom:0;z-index:200;
+      width:230px;
+      transform:translateX(-100%);
+      transition:transform .25s ease;
+    }
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-backdrop{
+      display:block;
+      position:fixed;inset:0;z-index:150;
+      background:rgba(0,0,0,0.45);
+      opacity:0;pointer-events:none;
+      transition:opacity .25s ease;
+    }
+    .sidebar-backdrop.open{opacity:1;pointer-events:auto;}
     .metrics{grid-template-columns:repeat(2,1fr);}
     .dash-grid{grid-template-columns:1fr;}
     .pipeline{grid-template-columns:1fr 1fr;}
@@ -131,7 +152,8 @@
 <body>
 
 <div class="app">
-  <aside class="sidebar">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar">
     <div class="logo"><span class="dot"></span>ClinicFlow</div>
     <div class="nav-item active" data-tab="dashboard">Dashboard</div>
     <div class="nav-item" data-tab="pipeline">Leads &amp; pipeline</div>
@@ -141,7 +163,10 @@
 
   <main class="main">
     <div class="topbar">
-      <h1 id="page-title">Dashboard</h1>
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+        <h1 id="page-title">Dashboard</h1>
+      </div>
       <div class="clinic-select">Meridian Dental Co. ▾</div>
     </div>
 
@@ -276,8 +301,24 @@
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.getElementById('tab-' + item.dataset.tab).classList.add('active');
       document.getElementById('page-title').textContent = titles[item.dataset.tab];
+      closeSidebar();
     });
   });
+
+  // mobile sidebar drawer
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+  const menuToggle = document.getElementById('menu-toggle');
+  function openSidebar(){
+    sidebar.classList.add('open');
+    sidebarBackdrop.classList.add('open');
+  }
+  function closeSidebar(){
+    sidebar.classList.remove('open');
+    sidebarBackdrop.classList.remove('open');
+  }
+  menuToggle.addEventListener('click', openSidebar);
+  sidebarBackdrop.addEventListener('click', closeSidebar);
 
   // animated counters
   function formatVal(el, val){
