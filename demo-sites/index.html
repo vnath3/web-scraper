@@ -270,6 +270,7 @@
         .hero-visual {
             flex: 0 0 280px;
             width: 280px;
+            max-width: 100%;
             display: flex;
             flex-direction: column;
         }
@@ -424,8 +425,8 @@
 
             .hero-visual {
                 width: 100%;
-                max-width: 300px;
-                margin: 40px auto 0;
+                max-width: 360px;
+                margin: 40px 0 0;
                 flex: none;
             }
         }
@@ -1056,8 +1057,8 @@
                     <button class="btn-primary"
                         onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">See live
                         demos</button>
-                    <button class="btn-outline" onclick="document.getElementById('chat-toggle').click()">Ask us
-                        anything</button>
+                    <button class="btn-outline" onclick="document.getElementById('chat-toggle').click()">Common
+                        questions</button>
                 </div>
             </div>
             <div class="hero-visual">
@@ -1298,8 +1299,7 @@
             <div class="chat-head-text"><b>FlowGridLabs Assistant</b><span>Usually replies instantly</span></div>
         </div>
         <div class="chat-body" id="chat-body">
-            <div class="chat-bubble bot">Hey! 👋 I can answer quick questions about how FlowGridLabs works — or point
-                you to the right demo. What would you like to know?</div>
+            <div class="chat-bubble bot">Hi! Here are some quick answers — or chat with us directly on WhatsApp.</div>
         </div>
         <div class="chat-quick" id="chat-quick"></div>
     </div>
@@ -1331,6 +1331,7 @@
             "Is my data safe?": "Yes — we only use publicly available Google listing data to build your demo, and any customer data collected afterward stays in your own CRM."
         };
         const quickQuestions = Object.keys(faq);
+        const WHATSAPP_NUMBER = 'PLACEHOLDER_NUMBER';
 
         function renderQuick() {
             chatQuick.innerHTML = '';
@@ -1340,6 +1341,10 @@
                 b.onclick = () => askQuestion(q);
                 chatQuick.appendChild(b);
             });
+            const wa = document.createElement('button');
+            wa.textContent = '💬 Chat with us on WhatsApp';
+            wa.onclick = () => window.open('https://wa.me/' + WHATSAPP_NUMBER, '_blank');
+            chatQuick.appendChild(wa);
         }
         renderQuick();
 
