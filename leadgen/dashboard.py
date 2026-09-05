@@ -208,7 +208,7 @@ def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
         display_df,
         key=f"editor_{category}",
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
         row_height=32,
         column_config={
             "name": st.column_config.TextColumn("Name", width="medium", disabled=True),
@@ -216,7 +216,7 @@ def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
             "phone": st.column_config.TextColumn("Phone", width="medium", disabled=True),
             "address": st.column_config.TextColumn("Address", width="large", disabled=True),
             "sub_area": st.column_config.TextColumn("Sub-area", width="small", disabled=True),
-            "website": st.column_config.TextColumn("Website", width="large", disabled=True),
+            "website": st.column_config.LinkColumn("Website", width="large", disabled=True),
             "rating": st.column_config.NumberColumn("Rating", width="small", disabled=True),
             "segment_tag": st.column_config.TextColumn("Segment", width="medium", disabled=True),
             "niche_tag": st.column_config.TextColumn("Niche", width="medium", disabled=True),
@@ -234,7 +234,7 @@ def _render_category_tab(category: str, category_df: pd.DataFrame) -> None:
             "enrichment_phone": st.column_config.TextColumn(
                 "Enrichment phone", width="medium", disabled=True
             ),
-            "enrichment_website_found": st.column_config.TextColumn(
+            "enrichment_website_found": st.column_config.LinkColumn(
                 "Enrichment website", width="large", disabled=True
             ),
             "enrichment_checked_at": st.column_config.TextColumn(
