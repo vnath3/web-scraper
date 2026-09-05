@@ -1,0 +1,20 @@
+category: "salon"
+location: "Chhatrapati Sambhaji Nagar"
+sub_areas:
+  - "Ulkanagri"
+radius_meters: 5000
+require_phone: true
+enrichment:
+  enabled: true
+  source: "justdial"
+  max_leads_per_run: 50
+api_budget:
+  max_calls_per_month: 8000
+  warn_at_percent: 80
+niche_keywords:
+  mens_salon: ["men's salon", "gents salon", "barber", "men's parlour", "hair studio for men"]
+  womens_salon: ["ladies salon", "women's salon", "beauty parlour", "ladies beauty parlour"]
+  unisex_salon: ["unisex salon", "unisex parlour", "family salon"]
+  bridal_makeup: ["bridal makeup", "bridal studio", "makeup artist", "wedding makeup"]
+  spa_wellness: ["spa", "wellness spa", "massage center", "spa & salon"]
+  hair_studio: ["hair studio", "hair salon", "hair spa", "hair styling", "hair care"]

@@ -4,6 +4,7 @@ sub_areas:
   - "Garkheda"
   - "Osmanpura"
   - "Mukundwadi"
+  - "Ulkanagri"
 radius_meters: 5000
 require_phone: true
 enrichment:

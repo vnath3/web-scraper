@@ -62,5 +62,6 @@ making structural changes.
 - architect (`config/sources.yaml`)
 - clinic (`config/sources_clinic.yaml`)
 - wholesaler (`config/sources_wholesaler.yaml`)
+- salon (`config/sources_salon.yaml`)
 
 Update this section whenever a new vertical config is added.
