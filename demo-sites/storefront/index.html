@@ -120,9 +120,22 @@
   .track-dot.done{background:var(--teal);}
   .track-label{font-size:10px;color:var(--ink-soft);}
 
+  /* ---------- source attribution ---------- */
+  .scan-banner{background:var(--teal-light);color:var(--teal);font-size:12.5px;font-weight:600;padding:10px 16px;border-radius:10px;margin:16px 0;text-align:center;}
+
   /* ---------- owner view ---------- */
   #owner-view{display:none;}
   .owner-note{background:var(--mustard);color:var(--ink);font-size:12.5px;padding:10px 14px;border-radius:10px;margin-bottom:20px;font-weight:500;}
+  .qr-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:24px;}
+  .qr-card h4{font-size:14px;font-weight:600;margin-bottom:6px;}
+  .qr-sub{font-size:12px;color:var(--ink-soft);margin-bottom:14px;}
+  .qr-toggle{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;font-size:12.5px;margin-bottom:16px;width:fit-content;}
+  .qr-toggle button{border:none;background:none;padding:8px 16px;border-radius:999px;cursor:pointer;color:var(--ink-soft);font-weight:500;}
+  .qr-toggle button.active{background:var(--maroon);color:#fff;}
+  .qr-preview{display:flex;justify-content:center;padding:12px;background:var(--bg);border-radius:10px;margin-bottom:12px;}
+  .qr-preview img{width:180px;height:180px;}
+  .qr-url{font-size:11.5px;color:var(--ink-soft);word-break:break-all;text-align:center;margin-bottom:14px;}
+  .qr-download{display:inline-block;text-align:center;text-decoration:none;}
   .owner-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin-bottom:10px;}
   .owner-thumb{width:48px;height:48px;border-radius:8px;flex-shrink:0;}
   .owner-info{flex:1;}
@@ -179,6 +192,7 @@
   <!-- ===================== CUSTOMER VIEW ===================== -->
   <div id="customer-view" class="wrap">
     <h1 class="reveal" style="margin-top:20px;">Order sweets, namkeen &amp; gift boxes</h1>
+    <div class="scan-banner reveal" id="scan-banner"></div>
     <div class="cat-tabs reveal">
       <div class="cat-tab active" onclick="setCategory('all', this)">All items</div>
       <div class="cat-tab" onclick="setCategory('sweets', this)">Sweets</div>
@@ -191,6 +205,20 @@
   <!-- ===================== OWNER VIEW ===================== -->
   <div id="owner-view" class="wrap">
     <div class="owner-note">This is what the shop owner sees — add a product with a real photo, name, and price, and it appears on the storefront instantly.</div>
+
+    <div class="qr-card">
+      <h4>Your storefront QR</h4>
+      <p class="qr-sub">Print this QR at the counter, on takeaway boxes, or share the WhatsApp link — each one tags where the order came from so you can see it in the order SMS.</p>
+      <div class="qr-toggle" id="qr-toggle">
+        <button class="active" onclick="setQrSource('counter', this)">Counter</button>
+        <button onclick="setQrSource('box', this)">Box</button>
+        <button onclick="setQrSource('whatsapp', this)">WhatsApp</button>
+      </div>
+      <div class="qr-preview"><img id="qr-img" src="" alt="Storefront QR code"></div>
+      <div class="qr-url" id="qr-url-text"></div>
+      <a class="btn-primary qr-download" id="qr-download" href="#" download="storefront-qr.png">Download QR</a>
+    </div>
+
     <h1>Your products</h1>
     <div id="owner-list"></div>
     <div class="add-product-card">
@@ -282,6 +310,40 @@
   let cart = {};
   let nextId = 7;
   let activeCategory = 'all';
+
+  // ---------- order-source attribution ----------
+  const shopName = 'Shree Krishna Sweets & Namkeen';
+  const sourceLabels = { counter: 'Counter QR', box: 'Box QR', whatsapp: 'WhatsApp link' };
+  const srcParam = new URLSearchParams(window.location.search).get('src');
+  const orderSource = sourceLabels[srcParam] || 'Direct link';
+
+  function renderScanBanner(){
+    const banner = document.getElementById('scan-banner');
+    if (sourceLabels[srcParam]) {
+      banner.textContent = `You scanned ${shopName} (${orderSource}) — browse & order below`;
+    } else {
+      banner.textContent = `Browse ${shopName}'s menu below and order in a few taps.`;
+    }
+  }
+
+  // ---------- owner: storefront QR ----------
+  let qrSource = 'counter';
+  function buildStoreUrl(src){
+    return window.location.origin + window.location.pathname + '?src=' + src;
+  }
+  function renderQr(){
+    const url = buildStoreUrl(qrSource);
+    const qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' + encodeURIComponent(url);
+    document.getElementById('qr-img').src = qrImgUrl;
+    document.getElementById('qr-url-text').textContent = url;
+    document.getElementById('qr-download').href = qrImgUrl;
+  }
+  function setQrSource(src, btn){
+    qrSource = src;
+    document.querySelectorAll('.qr-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderQr();
+  }
 
   function setView(view, btn){
     document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
@@ -392,7 +454,7 @@
     setTimeout(() => {
       smsArea.innerHTML = `<div class="sms-bubble" id="sms-bubble">
         <div class="from">New order · SMS from ShopLink</div>
-        ${name} ordered: ${itemsSummary}. Total ₹${total}. Reply YES to accept.
+        ${name} ordered: ${itemsSummary}. Total ₹${total}. Via: ${orderSource}. Reply YES to accept.
       </div>`;
       requestAnimationFrame(() => document.getElementById('sms-bubble').classList.add('show'));
       setTimeout(() => { document.getElementById('track-2').className = 'track-dot done'; document.getElementById('track-2').textContent='✓'; }, 1400);
@@ -464,6 +526,8 @@
   renderCustomerGrid();
   renderOwnerList();
   renderPhotoPicker();
+  renderScanBanner();
+  renderQr();
 </script>
 
 </body>
