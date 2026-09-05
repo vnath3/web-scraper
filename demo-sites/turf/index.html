@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turf Arena 92 — Book your slot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1613; --panel:#16211C; --ink:#EAF2ED; --ink-soft:#93A79C;
+    --green:#3FD07A; --green-deep:#25A45B; --green-dim:rgba(63,208,122,0.12);
+    --lime:#C6F24E; --amber:#F0A93B; --line:#25352C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;overflow-x:hidden;}
+  a{color:inherit;}
+  img{display:block;width:100%;height:100%;object-fit:cover;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  button{font-family:'Inter',sans-serif;}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-stagger > *{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0);}
+  .reveal-stagger.in > *:nth-child(1){transition-delay:.05s;}
+  .reveal-stagger.in > *:nth-child(2){transition-delay:.15s;}
+  .reveal-stagger.in > *:nth-child(3){transition-delay:.25s;}
+  .reveal-stagger.in > *:nth-child(4){transition-delay:.35s;}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 0;transition:background .3s ease,box-shadow .3s ease,padding .3s ease;}
+  nav.scrolled{background:rgba(14,22,19,0.92);backdrop-filter:blur(8px);box-shadow:0 1px 0 var(--line);padding:12px 0;}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;}
+  .brand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:.02em;color:#fff;text-transform:uppercase;}
+  .brand span{color:var(--green);}
+  .nav-cta{background:var(--green);color:#0E1613;border:none;padding:10px 20px;border-radius:6px;font-size:13.5px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.02em;}
+
+  .hero{position:relative;height:92vh;min-height:600px;display:flex;align-items:flex-end;overflow:hidden;}
+  .hero-bg{position:absolute;inset:0;z-index:0;}
+  .hero-bg img{transform:scale(1.08);transition:transform 6s ease;}
+  .hero.loaded .hero-bg img{transform:scale(1);}
+  .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,14,11,0.25) 0%,rgba(8,14,11,0.6) 55%,rgba(8,14,11,0.94) 100%);z-index:1;}
+  .hero-content{position:relative;z-index:2;color:#fff;padding-bottom:60px;width:100%;}
+  .live-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);padding:7px 14px;border-radius:6px;font-size:12.5px;margin-bottom:22px;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(63,208,122,.6);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,208,122,.5);}70%{box-shadow:0 0 0 8px rgba(63,208,122,0);}100%{box-shadow:0 0 0 0 rgba(63,208,122,0);}}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(40px,7vw,72px);line-height:1;letter-spacing:.01em;max-width:680px;text-transform:uppercase;}
+  h1 .accent{color:var(--green);}
+  .word{display:inline-block;opacity:0;transform:translateY(16px);animation:wordIn .6s ease forwards;}
+  @keyframes wordIn{to{opacity:1;transform:translateY(0);}}
+  .hero-sub{margin-top:16px;font-size:17px;color:rgba(255,255,255,0.82);max-width:460px;}
+  .cta-row{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{background:var(--green);color:#0E1613;border:none;padding:15px 28px;font-size:14.5px;font-weight:700;border-radius:6px;cursor:pointer;transition:background .2s,transform .2s;text-transform:uppercase;letter-spacing:.02em;}
+  .btn-primary:hover{background:var(--green-deep);transform:translateY(-1px);}
+  .btn-outline{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.35);padding:15px 24px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;}
+
+  .stats{background:var(--panel);border-bottom:1px solid var(--line);}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);padding:40px 0;}
+  .stat-item{text-align:center;border-left:1px solid var(--line);}
+  .stat-item:first-child{border-left:none;}
+  .stat-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:38px;color:var(--green);}
+  .stat-label{font-size:12px;color:var(--ink-soft);margin-top:2px;text-transform:uppercase;letter-spacing:.03em;}
+
+  .section{padding:60px 0;border-bottom:1px solid var(--line);}
+  .section-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--green);margin-bottom:12px;font-weight:700;}
+  .section h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34px;margin-bottom:26px;max-width:560px;text-transform:uppercase;letter-spacing:.01em;}
+
+  /* ---------- booking widget ---------- */
+  .booking{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:760px;}
+  .sport-row{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+  .sport-pill{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;border:1px solid var(--line);background:#0E1613;font-size:13.5px;font-weight:600;cursor:pointer;transition:border-color .2s,background .2s;}
+  .sport-pill.active{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+  .date-tabs{display:flex;gap:8px;margin-bottom:8px;overflow-x:auto;padding-bottom:4px;}
+  .date-tab{padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:#0E1613;font-size:13px;cursor:pointer;white-space:nowrap;text-align:center;transition:background .2s,border-color .2s;min-width:64px;}
+  .date-tab.active{background:var(--green);color:#0E1613;border-color:var(--green);font-weight:600;}
+  .date-tab .day{display:block;font-size:11px;opacity:.7;}
+  .date-tab.active .day{opacity:.85;}
+
+  .legend{display:flex;gap:16px;margin:18px 0 12px;font-size:11.5px;color:var(--ink-soft);flex-wrap:wrap;}
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .legend .sw{width:12px;height:12px;border-radius:3px;}
+  .sw.free{background:#0E1613;border:1px solid var(--line);}
+  .sw.peak{background:var(--green-dim);border:1px solid var(--green);}
+  .sw.booked{background:#1C2822;}
+
+  .slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px;}
+  .slot{padding:12px 8px;border-radius:8px;border:1px solid var(--line);background:#0E1613;text-align:center;cursor:pointer;transition:border-color .2s,background .2s,transform .1s;}
+  .slot:hover:not(.booked){border-color:var(--green);transform:translateY(-1px);}
+  .slot .time{font-size:13.5px;font-weight:600;}
+  .slot .price{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .slot.peak{background:var(--green-dim);border-color:rgba(63,208,122,0.4);}
+  .slot.peak .price{color:var(--green);}
+  .slot.selected{background:var(--green);border-color:var(--green);color:#0E1613;}
+  .slot.selected .price{color:#0E1613;}
+  .slot.booked{background:#1C2822;color:#5A6B62;cursor:not-allowed;border-color:transparent;}
+  .slot.booked .price{color:#5A6B62;}
+
+  .booking-summary{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--line);}
+  .booking-summary .sel-info{font-size:13.5px;}
+  .booking-summary .sel-info b{font-family:'Barlow Condensed',sans-serif;font-size:20px;color:var(--green);display:block;text-transform:uppercase;}
+
+  .amen-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .amen-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;}
+  .amen-icon{font-size:24px;margin-bottom:8px;}
+  .amen-name{font-size:13.5px;font-weight:600;}
+
+  .gallery{display:grid;grid-template-columns:1.4fr 1fr 1fr;grid-template-rows:190px 190px;gap:12px;}
+  .gallery a{grid-row:1/3;border-radius:10px;overflow:hidden;}
+  .gallery div{border-radius:10px;overflow:hidden;position:relative;cursor:pointer;}
+  .gallery div img{transition:transform .5s ease;}
+  .gallery div:hover img{transform:scale(1.06);}
+  .gallery .cap{position:absolute;bottom:0;left:0;right:0;padding:12px;font-size:12.5px;color:#fff;background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);}
+  .g-main{grid-row:1/3;}
+
+  .carousel{position:relative;max-width:640px;}
+  .carousel-track{overflow:hidden;}
+  .carousel-slides{display:flex;transition:transform .5s ease;}
+  .review-card{min-width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:30px;}
+  .review-stars{color:var(--amber);font-size:15px;margin-bottom:12px;letter-spacing:2px;}
+  .review-text{font-size:16.5px;line-height:1.5;margin-bottom:14px;}
+  .review-name{font-size:13px;color:var(--ink-soft);}
+  .carousel-dots{display:flex;gap:8px;margin-top:18px;}
+  .carousel-dots button{width:8px;height:8px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0;transition:background .2s,transform .2s;}
+  .carousel-dots button.active{background:var(--green);transform:scale(1.3);}
+
+  footer{padding:30px 0;text-align:center;font-size:12.5px;color:var(--ink-soft);}
+
+  .float-wa{position:fixed;bottom:24px;right:24px;z-index:90;background:var(--green);color:#0E1613;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(63,208,122,0.35);cursor:pointer;border:none;transition:transform .2s;}
+  .float-wa:hover{transform:scale(1.08);}
+  .float-wa svg{width:26px;height:26px;fill:#0E1613;}
+
+  .popup-backdrop{position:fixed;inset:0;background:rgba(5,8,6,0.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px;}
+  .popup-backdrop.show{opacity:1;pointer-events:auto;}
+  .popup-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:420px;width:100%;padding:30px;position:relative;transform:translateY(20px) scale(.97);transition:transform .35s ease;}
+  .popup-backdrop.show .popup-card{transform:translateY(0) scale(1);}
+  .popup-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:var(--ink-soft);cursor:pointer;}
+  .popup-eyebrow{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:8px;font-weight:600;}
+  .popup-card h3{font-family:'Barlow Condensed',sans-serif;font-size:24px;margin-bottom:10px;text-transform:uppercase;}
+  .popup-card p{font-size:14px;color:var(--ink-soft);margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .field input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#0E1613;color:var(--ink);}
+
+  @media (max-width:760px){
+    .stats-row{grid-template-columns:repeat(2,1fr);row-gap:24px;}
+    .stat-item:nth-child(3){border-left:none;}
+    .slot-grid{grid-template-columns:repeat(3,1fr);}
+    .amen-grid{grid-template-columns:1fr 1fr;}
+    .gallery{grid-template-columns:1fr 1fr;grid-template-rows:140px 140px 140px;}
+    .g-main{grid-column:1/3;grid-row:1/2;}
+    .gallery a{grid-row:auto;}
+    h1{font-size:44px;}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-row">
+    <div class="brand">Turf Arena <span>92</span></div>
+    <button class="nav-cta" onclick="document.getElementById('booking-sec').scrollIntoView({behavior:'smooth'})">Book slot</button>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <img src="assets/hero.jpg" alt="Football turf under floodlights">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="wrap hero-content">
+    <div class="live-badge"><span class="live-dot"></span><span id="live-text">3 slots left for tonight</span></div>
+    <h1>Book the turf. <span class="accent">Play tonight.</span></h1>
+    <p class="hero-sub">Turf Arena 92, Wakad — 5-a-side &amp; 7-a-side football and box cricket. Floodlit, open 6am to midnight. Book a slot in 30 seconds on WhatsApp.</p>
+    <div class="cta-row">
+      <button class="btn-primary" onclick="document.getElementById('booking-sec').scrollIntoView({behavior:'smooth'})">Check slots</button>
+      <button class="btn-outline" onclick="window.open('https://wa.me/919920092092','_blank')">WhatsApp us</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STATS ===================== -->
+<section class="stats">
+  <div class="wrap stats-row reveal-stagger" id="stats-row">
+    <div class="stat-item"><div class="stat-num" data-target="4.8" data-decimal="1">0</div><div class="stat-label">Google rating</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="640">0</div><div class="stat-label">Games played</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="18">0</div><div class="stat-label">Hrs open daily</div></div>
+    <div class="stat-item"><div class="stat-num" data-target="2">0</div><div class="stat-label">Turf grounds</div></div>
+  </div>
+</section>
+
+<!-- ===================== BOOKING WIDGET ===================== -->
+<section class="section reveal" id="booking-sec">
+  <div class="wrap">
+    <div class="section-label">Live availability</div>
+    <h2>Pick your sport, day &amp; slot.</h2>
+    <div class="booking">
+      <div class="sport-row" id="sport-row">
+        <button class="sport-pill active" onclick="selectSport(this)">⚽ 5-a-side</button>
+        <button class="sport-pill" onclick="selectSport(this)">⚽ 7-a-side</button>
+        <button class="sport-pill" onclick="selectSport(this)">🏏 Box cricket</button>
+      </div>
+
+      <div class="date-tabs" id="date-tabs"></div>
+
+      <div class="legend">
+        <span><span class="sw free"></span> Available</span>
+        <span><span class="sw peak"></span> Peak hour</span>
+        <span><span class="sw booked"></span> Booked</span>
+      </div>
+
+      <div class="slot-grid" id="slot-grid"></div>
+
+      <div class="booking-summary">
+        <div class="sel-info" id="sel-info">Select a slot to continue</div>
+        <button class="btn-primary" onclick="confirmSlot()">Confirm booking</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AMENITIES ===================== -->
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">What's on site</div>
+    <h2>Everything sorted before kickoff.</h2>
+    <div class="amen-grid">
+      <div class="amen-card"><div class="amen-icon">💡</div><div class="amen-name">Floodlit turf</div></div>
+      <div class="amen-card"><div class="amen-icon">🚿</div><div class="amen-name">Changing rooms</div></div>
+      <div class="amen-card"><div class="amen-icon">🅿️</div><div class="amen-name">Free parking</div></div>
+      <div class="amen-card"><div class="amen-icon">🥤</div><div class="amen-name">Café &amp; hydration</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== GALLERY ===================== -->
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">The ground</div>
+    <h2>Take a look before you play.</h2>
+    <div class="gallery">
+      <div class="g-main">
+        <img src="assets/gallery-1.jpg" alt="Football turf">
+        <div class="cap">Main turf</div>
+      </div>
+      <div>
+        <img src="assets/gallery-2.jpg" alt="Players on turf">
+        <div class="cap">5-a-side action</div>
+      </div>
+      <div>
+        <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800&auto=format&fit=crop" alt="Floodlights">
+        <div class="cap">Night games</div>
+      </div>
+      <div>
+        <img src="assets/gallery-4.jpg" alt="Turf close up">
+        <div class="cap">Pro-grade turf</div>
+      </div>
+      <div>
+        <img src="assets/gallery-5.jpg" alt="Box cricket net">
+        <div class="cap">Box cricket net</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== REVIEWS ===================== -->
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">From players on Google</div>
+    <h2>What teams say after their first game.</h2>
+    <div class="carousel">
+      <div class="carousel-track">
+        <div class="carousel-slides" id="carousel-slides">
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"Booked the 9pm slot on WhatsApp in seconds. Turf and lights are genuinely top quality."</div>
+            <div class="review-name">Rohit &amp; the Sunday XI · 2 weeks ago</div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"No more calling five times to check if it's free. The slot chart shows everything live."</div>
+            <div class="review-name">Aakash M. · 1 month ago</div>
+          </div>
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">"We run a weekly corporate game here. Reminders on WhatsApp mean nobody forgets anymore."</div>
+            <div class="review-name">Deepak R. · 5 weeks ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Turf Arena 92 · Wakad, Pune · +91 99200 92092</div>
+</footer>
+
+<!-- ===================== FLOATING WHATSAPP ===================== -->
+<button class="float-wa" onclick="window.open('https://wa.me/919920092092','_blank')" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7-1.87-1.87-4.36-2.94-7-2.94zm0 18.1c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.15 8.15 0 0 1-1.25-4.34c0-4.5 3.66-8.16 8.16-8.16 2.18 0 4.23.85 5.77 2.39a8.1 8.1 0 0 1 2.39 5.78c0 4.5-3.67 8.16-8.16 8.16z"/></svg>
+</button>
+
+<!-- ===================== POPUP ===================== -->
+<div class="popup-backdrop" id="popup">
+  <div class="popup-card">
+    <button class="popup-close" id="popup-close" aria-label="Close">×</button>
+    <div class="popup-eyebrow">Playing regularly?</div>
+    <h3>Lock a weekly slot</h3>
+    <p>Teams that book the same slot weekly get 15% off. Drop your number and we'll set it up on WhatsApp.</p>
+    <div class="field"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+    <button class="btn-primary" style="width:100%;">Get my weekly slot</button>
+  </div>
+</div>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); });
+
+  const hero = document.getElementById('hero');
+  window.addEventListener('load', () => hero.classList.add('loaded'));
+  const headline = "Book the turf. Play tonight.";
+  const h1 = document.getElementById('hero-h1') || document.querySelector('h1');
+  // headline already in markup with accent; skip word-split to preserve accent span
+
+  const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); if (e.target.id==='stats-row') animateCounters(); } });
+  }, {threshold:0.2});
+  revealEls.forEach(el => io.observe(el));
+
+  let countersDone = false;
+  function animateCounters(){
+    if (countersDone) return; countersDone = true;
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const target = parseFloat(el.dataset.target);
+      const decimal = parseInt(el.dataset.decimal || '0');
+      const dur = 1200; const start = performance.now();
+      function tick(now){
+        const p = Math.min((now-start)/dur,1);
+        const eased = 1-Math.pow(1-p,3);
+        const val = target*eased;
+        el.textContent = decimal ? val.toFixed(decimal) : Math.round(val);
+        if (p<1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // ---------- booking widget ----------
+  // build next 5 days
+  const dateTabs = document.getElementById('date-tabs');
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date();
+  let selectedDateIdx = 0;
+  for (let i=0;i<5;i++){
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const tab = document.createElement('div');
+    tab.className = 'date-tab' + (i===0?' active':'');
+    tab.innerHTML = (i===0?'Today':`<span>${d.getDate()}</span>`) + `<span class="day">${i===0?'':days[d.getDay()]}</span>`;
+    tab.onclick = () => { selectedDateIdx=i; document.querySelectorAll('.date-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); renderSlots(); };
+    dateTabs.appendChild(tab);
+  }
+
+  // slots 6am–11pm; peak = evening; some pre-booked (varies by day for realism)
+  const hours = [];
+  for (let h=6; h<=23; h++){ hours.push(h); }
+  function priceFor(h){ return (h>=18 && h<=22) ? 1200 : 800; } // peak evening
+  function isPeak(h){ return h>=18 && h<=22; }
+
+  let selectedSlot = null;
+  let selectedSport = '5-a-side';
+
+  function selectSport(btn){
+    document.querySelectorAll('.sport-pill').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    selectedSport = btn.textContent.replace(/[^\w-]/g,'').trim();
+    selectedSlot = null;
+    renderSlots();
+  }
+
+  // deterministic "booked" pattern so it looks real & changes per day
+  function isBooked(dayIdx, h){
+    const seed = (dayIdx*17 + h*3) % 7;
+    return seed === 0 || seed === 3;
+  }
+
+  function fmtHour(h){
+    const ampm = h<12 ? 'AM' : 'PM';
+    let hr = h%12; if (hr===0) hr=12;
+    return hr + ' ' + ampm;
+  }
+
+  function renderSlots(){
+    const grid = document.getElementById('slot-grid');
+    grid.innerHTML = '';
+    selectedSlot = null;
+    document.getElementById('sel-info').textContent = 'Select a slot to continue';
+    hours.forEach(h => {
+      const booked = isBooked(selectedDateIdx, h);
+      const peak = isPeak(h);
+      const slot = document.createElement('div');
+      slot.className = 'slot' + (peak?' peak':'') + (booked?' booked':'');
+      slot.innerHTML = `<div class="time">${fmtHour(h)}</div><div class="price">₹${priceFor(h)}</div>`;
+      if (!booked){
+        slot.onclick = () => {
+          document.querySelectorAll('.slot').forEach(s=>s.classList.remove('selected'));
+          slot.classList.add('selected');
+          selectedSlot = {h, price:priceFor(h)};
+          const dLabel = selectedDateIdx===0 ? 'Today' : document.querySelectorAll('.date-tab')[selectedDateIdx].querySelector('.day').textContent;
+          document.getElementById('sel-info').innerHTML = `<b>${fmtHour(h)} · ${selectedSport}</b>${dLabel} · ₹${priceFor(h)} for 60 min`;
+        };
+      }
+      grid.appendChild(slot);
+    });
+  }
+  renderSlots();
+
+  function confirmSlot(){
+    if (!selectedSlot){ alert('Please pick an available slot first.'); return; }
+    alert(`${fmtHour(selectedSlot.h)} ${selectedSport} slot held! Confirmation and payment link will be sent on WhatsApp.`);
+  }
+
+  // carousel
+  const slidesWrap = document.getElementById('carousel-slides');
+  const slideCount = slidesWrap.children.length;
+  const dotsWrap = document.getElementById('carousel-dots');
+  let current = 0;
+  for (let i=0;i<slideCount;i++){ const b=document.createElement('button'); if(i===0)b.classList.add('active'); b.onclick=()=>goTo(i); dotsWrap.appendChild(b); }
+  function goTo(i){ current=i; slidesWrap.style.transform=`translateX(-${i*100}%)`; [...dotsWrap.children].forEach((d,idx)=>d.classList.toggle('active',idx===i)); }
+  setInterval(()=>goTo((current+1)%slideCount), 4500);
+
+  // live badge
+  const liveMessages = ["3 slots left for tonight","Peak evening slots filling fast","2 teams booked in the last hour"];
+  let liveIdx=0;
+  setInterval(()=>{ liveIdx=(liveIdx+1)%liveMessages.length; document.getElementById('live-text').textContent=liveMessages[liveIdx]; }, 6000);
+
+  // popup
+  let popupShown=false;
+  const popup=document.getElementById('popup');
+  window.addEventListener('scroll', () => {
+    if (popupShown) return;
+    const scrolled=(window.scrollY+window.innerHeight)/document.body.scrollHeight;
+    if (scrolled>0.55){ popup.classList.add('show'); popupShown=true; }
+  });
+  document.getElementById('popup-close').onclick=()=>popup.classList.remove('show');
+  popup.addEventListener('click', e=>{ if(e.target===popup) popup.classList.remove('show'); });
+</script>
+
+</body>
+</html>
