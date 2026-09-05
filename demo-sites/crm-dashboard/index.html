@@ -132,6 +132,47 @@
   @keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
   .system-chip{align-self:center;background:var(--amber-light);color:var(--amber);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:999px;opacity:0;animation:bubbleIn .35s ease forwards;}
 
+  /* ---------- traffic & visitors tab ---------- */
+  .sample-flag{display:inline-flex;align-items:center;gap:7px;background:var(--amber-light);color:var(--amber);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;margin-bottom:18px;}
+  .sample-flag::before{content:"●";font-size:8px;}
+
+  .traffic-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+  .tm{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  .tm-label{font-size:12px;color:var(--ink-soft);margin-bottom:8px;}
+  .tm-value{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;line-height:1.1;}
+  .tm-sub{font-size:11.5px;color:var(--teal-deep);margin-top:5px;}
+
+  .hero-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+
+  .donut-wrap{display:flex;align-items:center;gap:22px;}
+  .donut{width:130px;height:130px;flex-shrink:0;transform:rotate(-90deg);}
+  .donut circle{fill:none;stroke-width:14;}
+  .donut-legend{display:flex;flex-direction:column;gap:9px;min-width:0;}
+  .dl-item{display:flex;align-items:center;gap:8px;font-size:12.5px;}
+  .dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .dl-item .pct{margin-left:auto;font-weight:600;font-family:'Space Grotesk',sans-serif;}
+
+  .viewed-row{margin-bottom:14px;}
+  .viewed-row:last-child{margin-bottom:0;}
+  .vr-head{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;}
+  .vr-head .pct{font-weight:600;color:var(--purple);}
+  .vr-bar{height:8px;background:#EFEDE6;border-radius:4px;overflow:hidden;}
+  .vr-bar i{display:block;height:100%;background:linear-gradient(90deg,#6A5FC7,#534AB7);border-radius:4px;width:0;transition:width 1s ease;}
+
+  .bottom-row{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;}
+  .device-split{display:flex;flex-direction:column;gap:14px;}
+  .ds-item .ds-head{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;}
+  .ds-bar{height:8px;background:#EFEDE6;border-radius:4px;overflow:hidden;}
+  .ds-bar i{display:block;height:100%;border-radius:4px;}
+  .ds-bar i.mobile{background:var(--teal);}
+  .ds-bar i.desktop{background:var(--amber);}
+
+  .hot-feed{display:flex;flex-direction:column;gap:10px;max-height:190px;overflow:hidden;}
+  .hot-item{display:flex;gap:10px;font-size:12.5px;padding:9px 10px;border-radius:8px;background:#FBFAF7;opacity:0;transform:translateY(-6px);animation:feedIn .4s ease forwards;align-items:center;}
+  .hot-icon{width:24px;height:24px;border-radius:50%;background:var(--coral-light);color:var(--coral);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+  .hot-text{flex:1;min-width:0;}
+  .hot-time{font-size:11px;color:var(--ink-soft);white-space:nowrap;}
+
   /* ---------- mobile ---------- */
   .backdrop{display:none;position:fixed;inset:0;background:rgba(20,20,18,0.5);z-index:150;}
   .backdrop.show{display:block;}
@@ -148,6 +189,10 @@
     .chat-demo-wrap{grid-template-columns:1fr;}
     /* pipeline becomes horizontal-scroll columns on mobile */
     .pipeline{grid-template-columns:repeat(5,minmax(150px,1fr));overflow-x:auto;padding-bottom:8px;}
+    .traffic-metrics{grid-template-columns:repeat(2,1fr);}
+    .hero-row{grid-template-columns:1fr;}
+    .bottom-row{grid-template-columns:1fr;}
+    .donut-wrap{justify-content:center;}
   }
 </style>
 </head>
@@ -165,6 +210,7 @@
     <div class="nav-item active" data-tab="dashboard" onclick="closeSidebar()">Dashboard</div>
     <div class="nav-item" data-tab="pipeline" onclick="closeSidebar()">Leads &amp; pipeline</div>
     <div class="nav-item" data-tab="automations" onclick="closeSidebar()">Automations &amp; AI<span class="nav-badge">LIVE</span></div>
+    <div class="nav-item" data-tab="traffic" onclick="closeSidebar()">Traffic &amp; visitors</div>
     <div class="sidebar-foot">Meridian Dental Co.<br>Pune · common CRM build</div>
   </aside>
 
@@ -289,6 +335,97 @@
       </div>
     </div>
 
+    <!-- ========== TRAFFIC & VISITORS TAB ========== -->
+    <div class="tab-content" id="tab-traffic">
+      <div class="sample-flag">Sample data — your real numbers appear here once your site is live</div>
+
+      <div class="traffic-metrics">
+        <div class="tm">
+          <div class="tm-label">Visitors this week</div>
+          <div class="tm-value" data-count="34">0</div>
+          <div class="tm-sub">↑ 20% vs last week</div>
+        </div>
+        <div class="tm">
+          <div class="tm-label">Avg time on page</div>
+          <div class="tm-value">1:48</div>
+          <div class="tm-sub">Above local average</div>
+        </div>
+        <div class="tm">
+          <div class="tm-label">Repeat visitors</div>
+          <div class="tm-value" data-count="28" data-suffix="%">0</div>
+          <div class="tm-sub">Came back within 7 days</div>
+        </div>
+        <div class="tm">
+          <div class="tm-label">Reached contact</div>
+          <div class="tm-value" data-count="9">0</div>
+          <div class="tm-sub">Potential leads this week</div>
+        </div>
+      </div>
+
+      <div class="hero-row">
+        <div class="card">
+          <div class="card-title">Where your visitors come from</div>
+          <div class="donut-wrap">
+            <svg class="donut" viewBox="0 0 42 42" id="donut">
+              <!-- circumference = 2*pi*15.9155 ≈ 100, so stroke-dasharray works in % -->
+              <circle cx="21" cy="21" r="15.9155" stroke="#EFEDE6" stroke-width="14"></circle>
+              <circle class="seg" cx="21" cy="21" r="15.9155" stroke="#0F6E56" stroke-dasharray="0 100" stroke-dashoffset="0" data-val="40"></circle>
+              <circle class="seg" cx="21" cy="21" r="15.9155" stroke="#534AB7" stroke-dasharray="0 100" stroke-dashoffset="-40" data-val="28"></circle>
+              <circle class="seg" cx="21" cy="21" r="15.9155" stroke="#BA7517" stroke-dasharray="0 100" stroke-dashoffset="-68" data-val="20"></circle>
+              <circle class="seg" cx="21" cy="21" r="15.9155" stroke="#D85A30" stroke-dasharray="0 100" stroke-dashoffset="-88" data-val="12"></circle>
+            </svg>
+            <div class="donut-legend">
+              <div class="dl-item"><span class="dl-dot" style="background:#0F6E56"></span>WhatsApp<span class="pct">40%</span></div>
+              <div class="dl-item"><span class="dl-dot" style="background:#534AB7"></span>Google listing<span class="pct">28%</span></div>
+              <div class="dl-item"><span class="dl-dot" style="background:#BA7517"></span>Direct link<span class="pct">20%</span></div>
+              <div class="dl-item"><span class="dl-dot" style="background:#D85A30"></span>Organic search<span class="pct">12%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">What visitors look at most</div>
+          <div class="viewed-row">
+            <div class="vr-head"><span>Services &amp; pricing</span><span class="pct">62%</span></div>
+            <div class="vr-bar"><i data-pct="62"></i></div>
+          </div>
+          <div class="viewed-row">
+            <div class="vr-head"><span>Reviews</span><span class="pct">48%</span></div>
+            <div class="vr-bar"><i data-pct="48"></i></div>
+          </div>
+          <div class="viewed-row">
+            <div class="vr-head"><span>Photos / gallery</span><span class="pct">37%</span></div>
+            <div class="vr-bar"><i data-pct="37"></i></div>
+          </div>
+          <div class="viewed-row">
+            <div class="vr-head"><span>Booking form</span><span class="pct">26%</span></div>
+            <div class="vr-bar"><i data-pct="26"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-row">
+        <div class="card">
+          <div class="card-title">Device</div>
+          <div class="device-split">
+            <div class="ds-item">
+              <div class="ds-head"><span>📱 Mobile</span><span>86%</span></div>
+              <div class="ds-bar"><i class="mobile" style="width:86%"></i></div>
+            </div>
+            <div class="ds-item">
+              <div class="ds-head"><span>💻 Desktop</span><span>14%</span></div>
+              <div class="ds-bar"><i class="desktop" style="width:14%"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Hot visitors today <span class="live-pill"><span class="d"></span>live</span></div>
+          <div class="hot-feed" id="hot-feed"></div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -301,7 +438,7 @@
 
   // tabs
   const navItems = document.querySelectorAll('.nav-item');
-  const titles = {dashboard:'Dashboard', pipeline:'Leads & pipeline', automations:'Automations & AI'};
+  const titles = {dashboard:'Dashboard', pipeline:'Leads & pipeline', automations:'Automations & AI', traffic:'Traffic & visitors'};
   navItems.forEach(item => {
     item.addEventListener('click', () => {
       navItems.forEach(i => i.classList.remove('active'));
@@ -309,6 +446,7 @@
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.getElementById('tab-' + item.dataset.tab).classList.add('active');
       document.getElementById('page-title').textContent = titles[item.dataset.tab];
+      if (item.dataset.tab === 'traffic') initTraffic();
     });
   });
 
@@ -468,6 +606,71 @@
   }
 
   renderPipeline();
+
+  // ---------- traffic & visitors tab ----------
+  function initTraffic(){
+    // count-up for the top strip
+    document.querySelectorAll('.tm-value[data-count]').forEach(el => {
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const dur = 1200, start = performance.now();
+      function tick(now){
+        const p = Math.min((now-start)/dur,1);
+        const eased = 1-Math.pow(1-p,3);
+        el.textContent = Math.round(target*eased) + suffix;
+        if (p<1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+
+    // donut: animate each segment's dasharray to its value
+    document.querySelectorAll('#tab-traffic .donut .seg').forEach(seg => {
+      seg.style.transition = 'none';
+      seg.setAttribute('stroke-dasharray', '0 100');
+    });
+    setTimeout(() => {
+      document.querySelectorAll('#tab-traffic .donut .seg').forEach(seg => {
+        const val = parseFloat(seg.dataset.val);
+        seg.style.transition = 'stroke-dasharray 1s ease';
+        seg.setAttribute('stroke-dasharray', val + ' ' + (100-val));
+      });
+    }, 150);
+
+    // most-viewed bars
+    document.querySelectorAll('#tab-traffic .vr-bar i').forEach(bar => { bar.style.width = '0'; });
+    setTimeout(() => {
+      document.querySelectorAll('#tab-traffic .vr-bar i').forEach((bar,i) => {
+        setTimeout(()=>{ bar.style.width = bar.dataset.pct + '%'; }, i*120);
+      });
+    }, 200);
+  }
+  initTraffic();
+
+  // hot visitor ticker
+  const hotEvents = [
+    {html:'A visitor reached your <b>contact section</b>', time:'Just now'},
+    {html:'Someone viewed <b>Services &amp; pricing</b> for 2 min', time:'8m ago'},
+    {html:'A repeat visitor opened your <b>booking form</b>', time:'19m ago'},
+    {html:'Visitor came from a <b>WhatsApp</b> link', time:'34m ago'},
+    {html:'Someone read <b>3 reviews</b> before leaving', time:'52m ago'},
+  ];
+  const hotFeed = document.getElementById('hot-feed');
+  function renderHot(){
+    hotFeed.innerHTML = '';
+    hotEvents.forEach((ev,i) => {
+      const div = document.createElement('div');
+      div.className = 'hot-item';
+      div.style.animationDelay = (i*0.08)+'s';
+      div.innerHTML = `<div class="hot-icon">▲</div><div class="hot-text">${ev.html}</div><div class="hot-time">${ev.time}</div>`;
+      hotFeed.appendChild(div);
+    });
+  }
+  renderHot();
+  setInterval(() => {
+    hotEvents.unshift({html:'A new visitor landed from <b>Google listing</b>', time:'Just now'});
+    hotEvents.pop();
+    renderHot();
+  }, 6500);
 
   // AI chat demo
   const chatBody = document.getElementById('chat-body');
