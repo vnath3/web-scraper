@@ -1,0 +1,31 @@
+# Outreach settings for `python main.py outreach`.
+# Per-vertical demo mapping lives in each sources_*.yaml under `outreach.demo`.
+#
+# Message placeholders:
+#   {business}     the lead's business name (shortened, cleaned)
+#   {link}         personalised demo link for that business
+#   {sender}       your name
+#   {brand}        your brand
+#   {sender_city}  where you're based
+site: "https://flowgridlabs.com"
+brand: "FlowGridLabs"
+sender: "Vivek"
+sender_city: "Chhatrapati Sambhaji Nagar"
+default_limit: 20
+follow_up_days: 3
+
+messages:
+  en: |-
+    Hi {business} team, I'm {sender} from {brand} ({sender_city}).
+
+    I made a free sample website for {business} — customers can book online and you get every booking on WhatsApp:
+    {link}
+
+    Take a look. If you like it, I can make it live for you this week. If you're not interested, just reply STOP and I won't message again.
+  mr: |-
+    नमस्कार {business} टीम, मी विवेक, {brand} (छत्रपती संभाजीनगर) कडून.
+
+    {business} साठी मी एक मोफत सॅम्पल वेबसाइट बनवली आहे — ग्राहक ऑनलाइन बुकिंग करू शकतात आणि प्रत्येक बुकिंग तुम्हाला WhatsApp वर मिळते:
+    {link}
+
+    एकदा नक्की बघा. आवडल्यास या आठवड्यातच लाइव्ह करून देतो. नको असल्यास फक्त STOP लिहा, पुन्हा मेसेज करणार नाही.

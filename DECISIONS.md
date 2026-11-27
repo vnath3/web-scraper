@@ -121,3 +121,30 @@ deferred items (also listed in [ROADMAP.md](ROADMAP.md)) — this decision
 exists so a future session doesn't read "add contact history" as an
 oversight and quietly bolt it onto these two columns. That's a different,
 larger feature, not an extension of this one.
+
+## Outreach builds links for manual WhatsApp sending — it never sends
+
+`main.py outreach` turns `new` leads into personalised flowgridlabs.com
+demo links (`/demos/<demo>/?name=<business>&ref=outreach-<demo>`) and
+prefilled `wa.me` messages, written to a local HTML page + CSV. A person
+taps and sends each one.
+
+- **No automated sending.** Bulk unsolicited WhatsApp gets numbers
+  reported and banned, and the WhatsApp Business API requires opt-in
+  templates for first contact. One-tap manual sending keeps a human
+  reviewing every message and keeps the number healthy. Each message
+  carries a "reply STOP" opt-out.
+- **`--segment` is an outreach choice, not a qualifying filter.** The
+  qualifying filter stays phone + operational status (see above).
+  Choosing to message `no_digital_presence` leads first is a sales
+  priority on already-qualified leads, so it lives on the outreach
+  command, not in `filters.py`.
+- **Vertical → demo mapping is config** (`outreach.demo` in each
+  sources yaml; message text in `config/outreach.yaml`) so no category
+  strings enter `.py` files. Verticals without a matching demo simply
+  have no `outreach` block, and the command says so.
+- **`--mark-contacted` only touches `status = new` rows** and sets
+  `follow_up_date`, reusing the existing minimal outcome-tracking
+  columns — no new tables or columns.
+- **Output folder is git-ignored** — it holds prospects' phone numbers.
+
