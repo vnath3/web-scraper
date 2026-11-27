@@ -49,6 +49,39 @@ only against leads tagged `no_digital_presence`.
 python main.py export --output leads.csv
 ```
 
+## Outreach (personalised demo links on WhatsApp)
+
+```bash
+python main.py outreach --config config/sources_clinic.yaml
+python main.py outreach --config config/sources_clinic.yaml --lang mr --segment no_digital_presence --limit 20
+python main.py outreach --config config/sources_salon.yaml --mark-contacted
+```
+
+Builds `outreach/<demo>-<date>-<lang>.html` + `.csv` from leads of that
+config's `category` with `status = new`. Open the HTML on your phone: each
+lead has **Send on WhatsApp** (prefilled message with their personalised
+flowgridlabs.com demo link) and **Preview demo**. Nothing is sent
+automatically — you review and send each one.
+
+- `--config` (required) must have `outreach.demo` set (which
+  flowgridlabs.com demo folder to show — e.g. `demo: "clinic"`).
+- `--lang` picks the message template from `config/outreach.yaml`
+  (`en`, `mr`).
+- `--segment` limits to one `segment_tag` (e.g. `no_digital_presence`).
+  Without it, all `new` leads are eligible; `no_digital_presence` leads
+  are listed first either way.
+- `--limit` defaults to `default_limit` in `config/outreach.yaml` (20).
+- `--mark-contacted` sets the listed leads to `status = contacted` with a
+  `follow_up_date` `follow_up_days` ahead, so tomorrow's run picks new
+  people. Run it after you've actually sent the messages.
+- Leads without a WhatsApp-able mobile (landlines, missing numbers) are
+  skipped and counted; `enrichment_phone` is used when `phone` isn't a
+  mobile. The same number on two listings is messaged once.
+- Message text, site URL, sender and follow-up gap live in
+  `config/outreach.yaml`.
+
+Tests: `python -m unittest discover -s tests -t .`
+
 ## Dashboard
 
 ```bash

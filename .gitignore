@@ -11,3 +11,6 @@ data/*.sqlite3
 # Streamlit agent skills (environment-specific symlinks)
 .agents/skills/developing-with-streamlit
 .claude/skills/developing-with-streamlit
+
+# outreach lists contain prospects' phone numbers — never commit
+outreach/

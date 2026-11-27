@@ -24,3 +24,5 @@ niche_keywords:
   pediatric: ["pediatric", "paediatric", "child clinic", "children's clinic", "bal chikitsa", "kids clinic"]
   gynecology: ["gynec", "gynecology", "gynaecology", "women's clinic", "maternity", "prasuti"]
   ent: ["ent clinic", "ent specialist", "ear nose throat", "nak kan gala", "throat clinic", "ent hospital"]
+outreach:
+  demo: "clinic"   # flowgridlabs.com/demos/clinic/ — see config/outreach.yaml

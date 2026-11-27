@@ -242,6 +242,52 @@ def export(output_path: str) -> None:
     print(f"Exported {rows_written} leads to {output_path}")
 
 
+def outreach(
+    config_path: str,
+    lang: str,
+    limit: Optional[int],
+    segment: Optional[str],
+    output: Optional[str],
+    mark: bool,
+) -> None:
+    from leadgen.outreach import (
+        build_outreach,
+        load_leads,
+        load_outreach_settings,
+        mark_contacted,
+        write_csv,
+        write_html,
+    )
+
+    config = load_config(config_path)
+    if not config.outreach:
+        raise SystemExit(
+            f"{config_path} has no `outreach.demo` set — add which flowgridlabs.com demo to show, e.g.\n"
+            "outreach:\n  demo: \"<demo-folder>\""
+        )
+    settings = load_outreach_settings()
+    selection = build_outreach(
+        load_leads(config.category),
+        settings=settings,
+        demo=config.outreach.demo,
+        lang=lang,
+        limit=limit or settings.default_limit,
+        segment=segment,
+    )
+    stem = output or f"outreach/{config.outreach.demo}-{date.today().isoformat()}-{lang}"
+    stem = stem[:-5] if stem.endswith(".html") else stem
+    write_html(selection.items, f"{stem}.html", f"{config.category} · {config.location} · {date.today().isoformat()}")
+    write_csv(selection.items, f"{stem}.csv")
+    print(f"{len(selection.items)} leads ready -> {stem}.html (open on your phone) and {stem}.csv")
+    if selection.skipped_no_mobile:
+        print(f"Skipped {len(selection.skipped_no_mobile)} with no WhatsApp-able mobile number (landline or missing).")
+    if mark:
+        n = mark_contacted([i.place_id for i in selection.items], settings.follow_up_days)
+        print(f"Marked {n} leads as 'contacted' with a follow-up in {settings.follow_up_days} days.")
+    else:
+        print("Tip: add --mark-contacted once you've sent them, so they aren't picked again.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Local-business lead-generation scraper")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -268,6 +314,21 @@ def main() -> None:
         "--output", default="leads.csv", help="Path to output CSV file"
     )
 
+    outreach_parser = subparsers.add_parser(
+        "outreach",
+        help="Build personalised demo links + one-tap WhatsApp messages (you send them)",
+    )
+    outreach_parser.add_argument("--config", required=True, help="Vertical config with outreach.demo set")
+    outreach_parser.add_argument("--lang", default="en", help="Message language key from config/outreach.yaml (en, mr)")
+    outreach_parser.add_argument("--limit", type=int, default=None, help="How many leads (default from outreach.yaml)")
+    outreach_parser.add_argument("--segment", default=None, help="Only this segment_tag, e.g. no_digital_presence")
+    outreach_parser.add_argument("--output", default=None, help="Output path without extension")
+    outreach_parser.add_argument(
+        "--mark-contacted",
+        action="store_true",
+        help="Set these leads to status=contacted with a follow-up date",
+    )
+
     args = parser.parse_args()
 
     if args.command == "run":
@@ -276,6 +337,8 @@ def main() -> None:
         enrich(args.config)
     elif args.command == "export":
         export(args.output)
+    elif args.command == "outreach":
+        outreach(args.config, args.lang, args.limit, args.segment, args.output, args.mark_contacted)
 
 
 if __name__ == "__main__":

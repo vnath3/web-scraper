@@ -18,3 +18,5 @@ niche_keywords:
   bridal_makeup: ["bridal makeup", "bridal studio", "makeup artist", "wedding makeup"]
   spa_wellness: ["spa", "wellness spa", "massage center", "spa & salon"]
   hair_studio: ["hair studio", "hair salon", "hair spa", "hair styling", "hair care"]
+outreach:
+  demo: "salon"   # flowgridlabs.com/demos/salon/ — see config/outreach.yaml

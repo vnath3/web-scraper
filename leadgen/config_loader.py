@@ -20,6 +20,12 @@ class ApiBudgetConfig(BaseModel):
     warn_at_percent: int = Field(80, ge=1, le=100)
 
 
+class OutreachConfig(BaseModel):
+    """Which flowgridlabs.com live demo to show leads of this vertical."""
+
+    demo: str = Field(..., min_length=1)
+
+
 class SourceConfig(BaseModel):
     category: str = Field(..., min_length=1)
     location: str = Field(..., min_length=1)
@@ -29,6 +35,7 @@ class SourceConfig(BaseModel):
     enrichment: Optional[EnrichmentConfig] = None
     api_budget: Optional[ApiBudgetConfig] = None
     niche_keywords: Optional[Dict[str, List[str]]] = None
+    outreach: Optional[OutreachConfig] = None
 
 
 def load_config(path: str | Path) -> SourceConfig:
